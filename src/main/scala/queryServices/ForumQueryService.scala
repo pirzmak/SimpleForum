@@ -1,6 +1,6 @@
 package queryServices
 
-import repositories.{Post, PostId, Topic, TopicId}
+import models.{Post, PostId, Topic, TopicId}
 
 class ForumQueryService {
   def getTopicsList(offset: Option[Int], limit: Option[Int]): Seq[Topic] = ???

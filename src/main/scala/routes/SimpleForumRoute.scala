@@ -1,12 +1,10 @@
 package routes
 
-import java.util.UUID
-
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import commandServices._
+import models.{PostId, PostSecret, TopicId}
 import queryServices.ForumQueryService
-import repositories.{PostId, PostSecret, TopicId}
 import spray.json._
 
 import scala.reflect.ClassTag
@@ -25,7 +23,7 @@ class SimpleForumRoute(forumCommandService: ForumCommandService,
           }
         } ~
         post {
-          entity(as[CreateNewTopicByNotLoggedUser]) { command =>
+          entity(as[CreateNewTopic]) { command =>
             handleResponse[TopicCommandResponse] {
               forumCommandService.createNewTopic(
                 command.topicName,
@@ -39,21 +37,21 @@ class SimpleForumRoute(forumCommandService: ForumCommandService,
       pathPrefix("topic" / Segment) { topicId =>
         path("posts") {
           get {
-            parameters("postId".as[String], "offsetBefore".as[Int].?, "offsetAfter".as[Int].?) {
+            parameters("postId".as[Int], "offsetBefore".as[Int].?, "offsetAfter".as[Int].?) {
               (postId, offsetBefore, offsetAfter) =>
                 complete {
                   forumQueryService.getTopicPosts(
-                    TopicId(UUID.fromString(topicId)),
-                    PostId(UUID.fromString(postId)),
+                    TopicId(topicId.toInt),
+                    PostId(postId),
                     offsetBefore, offsetAfter)
                 }
             }
           } ~
           post {
-            entity(as[CreateNewPostByNotLoggedUser]) { command =>
+            entity(as[CreateNewPost]) { command =>
               handleResponse[PostCommandResponse] {
                 forumCommandService.createNewPost(
-                  TopicId(UUID.fromString(topicId)),
+                  TopicId(topicId.toInt),
                   command.message,
                   command.creator)
               }

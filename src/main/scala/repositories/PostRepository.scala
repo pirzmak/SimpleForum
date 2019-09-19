@@ -1,5 +1,7 @@
 package repositories
 
+import models.{Post, PostId, PostSecret, TopicId, User}
+
 class PostRepository {
   def createNew(topicId: TopicId, message: String, creator: User): (PostId, PostSecret) = ???
   def update(postSecret: PostSecret, newMessage: String): (PostId, PostSecret) = ???

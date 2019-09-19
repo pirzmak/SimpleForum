@@ -1,6 +1,6 @@
 package commandServices
 
-import repositories.{PostId, PostSecret, TopicId, User}
+import models.{PostId, PostSecret, TopicId, User}
 import routes.FailureResponse
 
 case class TopicCommandResponse(topicId: TopicId)
