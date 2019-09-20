@@ -1,6 +1,7 @@
 package repositories.slick
 
 
+import java.sql.Timestamp
 import java.time.LocalDateTime
 
 import models.{Post, PostId, Topic, TopicId, User}
@@ -13,7 +14,7 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 import scala.concurrent.Await
 
-class PostRepositorySlickSpec
+class PostsRepositorySlickSpec
   extends AsyncFlatSpec
     with MustMatchers
     with BeforeAndAfter {
@@ -24,12 +25,16 @@ class PostRepositorySlickSpec
   val topicsRepository = new TopicsRepositorySlickImpl(config)
   val topicId = TopicId(1)
   val tmpUser = User("test", "test@test")
-  topicsRepository.init(Seq(Topic(Some(topicId), "tmp", tmpUser, LocalDateTime.MIN)))
 
   val postsRepository = new PostsRepositorySlickImpl(config)
 
+  before {
+    Await.result(topicsRepository.init(Seq(Topic(Some(topicId), "tmp", tmpUser))), timeout)
+  }
+
   after {
     Await.result(postsRepository.drop(), timeout)
+    Await.result(topicsRepository.drop(), timeout)
   }
 
   "Empty posts repository getById method" should "return None" in {

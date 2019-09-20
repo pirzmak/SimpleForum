@@ -1,6 +1,9 @@
 package repositories.slick
 
-import models.{Post, PostId}
+import java.sql.Timestamp
+import java.time.LocalDateTime
+
+import models.{Post, PostId, TopicId}
 import repositories.interfaces.PostsRepository
 import slick.basic.DatabaseConfig
 import slick.dbio.DBIOAction
@@ -14,7 +17,7 @@ class PostsRepositorySlickImpl(val config: DatabaseConfig[JdbcProfile])(implicit
   import config.profile.api._
 
   override def init(initValues: Seq[Post] = Seq.empty): Future[Unit] =
-    if (!tableExists("asd")) {
+    if (!tableExists("POSTS")) {
       db.run(
         DBIOAction.seq(
           posts.schema.create,
@@ -25,23 +28,40 @@ class PostsRepositorySlickImpl(val config: DatabaseConfig[JdbcProfile])(implicit
     }
 
   override def drop(): Future[Unit] =
-    db.run(
-      DBIOAction.seq(
-        posts.schema.drop
-      ))
+    db.run(posts.schema.drop)
 
-  override def createNew(post: Post): Future[PostId] =
-    db.run(posts returning posts.map(_.id) += post)
-      .map(id => post.copy(id = Some(PostId(id))).id.get)
+  override def createNew(post: Post): Future[PostId] = {
+    val action = for {
+      _ <- updateTopicAction(post.topicId)
+      a <- posts returning posts.map(_.id) += post
+    } yield a
 
-  override def update(postId: PostId, newMessage: String): Future[PostId] = {
-    val query = for (post <- posts if post.id === postId.value)
-      yield post.text
-    db.run(query.update(newMessage)).map(_ => postId)
+    db.run(action.transactionally).map(PostId)
   }
 
-  override def delete(postId: PostId): Future[Boolean] =
-    db.run(posts.filter(_.id === postId.value).delete) map { _ > 0 }
+  override def update(postId: PostId, newMessage: String): Future[PostId] = {
+    val query = for {
+      post <- posts if post.id === postId.value
+    } yield post.text
+
+    val action = for {
+      post <- posts.filter(_.id === postId.value).result.head
+      _ <- updateTopicAction(post.topicId)
+      a <- query.update(newMessage)
+    } yield a
+
+    db.run(action.transactionally).map(_ => postId)
+  }
+
+  override def delete(postId: PostId): Future[Boolean] = {
+    val action = for {
+      post <- posts.filter(_.id === postId.value).result.head
+      _ <- updateTopicAction(post.topicId)
+      a <- posts.filter(_.id === postId.value).delete
+    } yield a
+
+    db.run(action.transactionally) map { _ > 0 }
+  }
 
   override def getById(postId: PostId): Future[Option[Post]] =
     db.run(posts.filter(_.id === postId.value).result.headOption)
@@ -52,5 +72,13 @@ class PostsRepositorySlickImpl(val config: DatabaseConfig[JdbcProfile])(implicit
       val after = posts.sortBy(_.id).filter(_.id > actualPost.value).take(afterNo)
       db.run((before ++ after).sortBy(_.id).result)
     }
+
+  private def updateTopicAction(topicId: TopicId) = {
+    val query = for {
+      topic <- topics if topic.id === topicId.value
+    } yield topic.last_modified
+
+    query.update(Timestamp.valueOf(LocalDateTime.now()))
+  }
 }
 

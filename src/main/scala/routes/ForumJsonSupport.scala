@@ -1,6 +1,7 @@
 package routes
 
 
+import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -10,14 +11,14 @@ import models.{Post, PostId, PostSecret, Topic, TopicId, User}
 import spray.json._
 
 trait ForumJsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
-  implicit val localDateTimeJsonFormat: JsonFormat[LocalDateTime] =
-    new JsonFormat[LocalDateTime] {
+  implicit val localDateTimeJsonFormat: JsonFormat[Timestamp] =
+    new JsonFormat[Timestamp] {
       private val formatter = DateTimeFormatter.ISO_DATE_TIME
 
-      override def write(x: LocalDateTime): JsValue = JsString(x.format(formatter))
+      override def write(x: Timestamp): JsValue = JsString(x.toLocalDateTime.format(formatter))
 
-      override def read(value: JsValue): LocalDateTime = value match {
-        case JsString(x) => LocalDateTime.parse(x)
+      override def read(value: JsValue): Timestamp = value match {
+        case JsString(x) => Timestamp.valueOf(LocalDateTime.parse(x))
         case x => deserializationError("Wrong time format of " + x)
       }
     }

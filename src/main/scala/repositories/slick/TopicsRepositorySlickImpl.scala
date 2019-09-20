@@ -2,30 +2,39 @@ package repositories.slick
 
 import java.time.LocalDateTime
 
-import models.{Topic, TopicId, User}
+import models.{PostId, Topic, TopicId, User}
 import repositories.interfaces.TopicsRepository
 import slick.basic.DatabaseConfig
 import slick.dbio.DBIOAction
 import slick.jdbc.JdbcProfile
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class TopicsRepositorySlickImpl(val config: DatabaseConfig[JdbcProfile])
+class TopicsRepositorySlickImpl(val config: DatabaseConfig[JdbcProfile])(implicit ec: ExecutionContext)
   extends TopicsRepository with Db with TopicsTable {
 
   import config.profile.api._
 
-  override def init(initValues: Seq[Topic] = Seq.empty): Unit =
-    if(!tableExists("asd")) {
+  override def init(initValues: Seq[Topic] = Seq.empty): Future[Unit] =
+    if(!tableExists("TOPICS")) {
       db.run(
         DBIOAction.seq(
           topics.schema.create,
           topics ++= initValues
         ))
-    }
+    } else Future.successful()
 
-  override def createNew(topic: Topic): Future[TopicId] = ???
+  override def drop(): Future[Unit] =
+    db.run(topics.schema.drop)
 
-  override def getListByLastActivity(topicId: TopicId, offset: Int, limit: Int): Future[List[Topic]] = ???
+  override def createNew(topic: Topic): Future[TopicId] =
+    db.run(topics returning topics.map(_.id) += topic)
+      .map(id => topic.copy(id = Some(TopicId(id))).id.get)
+
+  override def getById(topicId: TopicId): Future[Option[Topic]] =
+    db.run(topics.filter(_.id === topicId.value).result.headOption)
+
+  override def getAllSortedByLastActivity(offset: Int, limit: Int): Future[Seq[Topic]] =
+    db.run(topics.sortBy(_.last_modified.desc).drop(offset).take(limit).result)
 }
 

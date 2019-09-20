@@ -1,11 +1,13 @@
 package repositories.interfaces
 
-import models.{Topic, TopicId, User}
+import models.{PostId, Topic, TopicId}
 
 import scala.concurrent.Future
 
 trait TopicsRepository {
-  def init(initValues: Seq[Topic])
+  def init(initValues: Seq[Topic]): Future[Unit]
+  def drop(): Future[Unit]
   def createNew(topic: Topic): Future[TopicId]
-  def getListByLastActivity(topicId: TopicId, offset: Int, limit: Int): Future[List[Topic]]
+  def getById(topicId: TopicId): Future[Option[Topic]]
+  def getAllSortedByLastActivity(offset: Int, limit: Int): Future[Seq[Topic]]
 }

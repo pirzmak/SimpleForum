@@ -1,5 +1,6 @@
 package models
 
+import java.sql.Timestamp
 import java.time.LocalDateTime
 
 import slick.lifted.MappedTo
@@ -13,16 +14,16 @@ case class User(nickName: String, email: String)
 case class PostSecret(secret: String)
 
 object Topic {
-  def fromRecord(record: (Option[Int], String, String, String, LocalDateTime)): Topic = {
+  def fromRecord(record: (Option[Int], String, String, String, Timestamp)): Topic = {
     Topic(record._1.map(TopicId), record._2, User(record._3, record._4), record._5)
   }
 
-  def toRecord(topic: Topic): Option[(Option[Int], String, String, String, LocalDateTime)] = {
+  def toRecord(topic: Topic): Option[(Option[Int], String, String, String, Timestamp)] = {
     Some((topic.id.map(_.value), topic.text, topic.creator.nickName, topic.creator.email, topic.lastModified))
   }
 }
 
-case class Topic(id: Option[TopicId], text: String, creator: User, lastModified: LocalDateTime)
+case class Topic(id: Option[TopicId], text: String, creator: User, lastModified: Timestamp = Timestamp.valueOf(LocalDateTime.now()))
 
 object Post {
   def fromRecord(record: (Option[Int], Int, String, String, String)): Post = {
