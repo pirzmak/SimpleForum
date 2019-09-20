@@ -1,9 +1,8 @@
 package repositories.slick
 
-
 import models.Post
 
-trait PostsTable extends TopicsTable{ this: Db =>
+trait PostsTable extends TopicsTable { this: Db =>
   import config.profile.api._
 
   class Posts(tag: Tag) extends Table[Post](tag, "POSTS") {
