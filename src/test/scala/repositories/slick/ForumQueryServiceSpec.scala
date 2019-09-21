@@ -4,7 +4,7 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 
 import confguration.{PaginationConfig, ServerConfig}
-import models.{Post, PostId, Topic, TopicId, User}
+import model.{Post, PostId, Topic, TopicId, User}
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, MustMatchers}
 import queryServices.ForumQueryService
 import repositories.slick.mocks.{PostsRepositoryMock, TopicsRepositoryMock}
@@ -50,7 +50,7 @@ class ForumQueryServiceSpec
   val topicsRepository = new TopicsRepositoryMock()
   val postsRepository = new PostsRepositoryMock(topicsRepository)
 
-  val topics = Range(1, 100).map(x => Topic(None, "test", tmpUser, Timestamp.valueOf(LocalDateTime.MIN.plusHours(x))))
+  val topics = Range(1, 100).map(x => Topic(None, "test", "test", tmpUser, Timestamp.valueOf(LocalDateTime.MIN.plusHours(x))))
   val posts = Range(1, 100).map(_ => Post(None, TopicId(1), "test", tmpUser)) ++
     Range(1, 10).map(_ => Post(None, TopicId(2), "test", tmpUser))
 

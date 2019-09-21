@@ -1,7 +1,7 @@
 package repositories.slick
 
 
-import models.{Post, PostId, Topic, TopicId, User}
+import model.{Post, PostId, Topic, TopicId, User}
 import org.h2.jdbc.JdbcException
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, MustMatchers}
 import slick.basic.DatabaseConfig
@@ -26,7 +26,7 @@ class PostsRepositorySlickSpec
   val postsRepository = new PostsRepositorySlickImpl(config)
 
   before {
-    Await.result(topicsRepository.init(Seq(Topic(Some(topicId), "tmp", tmpUser))), timeout)
+    Await.result(topicsRepository.init(Seq(Topic(Some(topicId), "tmp", "test", tmpUser))), timeout)
   }
 
   after {

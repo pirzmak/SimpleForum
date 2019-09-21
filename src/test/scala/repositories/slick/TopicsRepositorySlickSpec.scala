@@ -1,6 +1,6 @@
 package repositories.slick
 
-import models._
+import model._
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, MustMatchers}
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
@@ -33,7 +33,7 @@ class TopicsRepositorySlickSpec
   }
 
   "Topics repository getById method" should "return element" in {
-    Await.result(topicsRepository.init(Seq(Topic(None, "tmp", tmpUser))), timeout)
+    Await.result(topicsRepository.init(Seq(Topic(None, "tmp", "test", tmpUser))), timeout)
 
     topicsRepository.getById(TopicId(1)) map {
       result => result.flatMap(_.id) mustBe Some(TopicId(1))
@@ -41,7 +41,7 @@ class TopicsRepositorySlickSpec
   }
 
   "Topics repository getById method with wrong id" should "return None" in {
-    Await.result(topicsRepository.init(Seq(Topic(None, "tmp", tmpUser))), timeout)
+    Await.result(topicsRepository.init(Seq(Topic(None, "tmp", "test", tmpUser))), timeout)
 
     topicsRepository.getById(TopicId(2)) map {
       result => result mustBe None
@@ -57,7 +57,7 @@ class TopicsRepositorySlickSpec
   }
 
   "Topics repository getAllSortedByLastActivity" should "return list with topics" in {
-    Await.result(topicsRepository.init(Seq(Topic(None, "tmp", tmpUser))), timeout)
+    Await.result(topicsRepository.init(Seq(Topic(None, "tmp", "test", tmpUser))), timeout)
 
     topicsRepository.getAllSortedByLastActivity(0, 3) map {
       result => result.length mustBe 1
@@ -66,10 +66,10 @@ class TopicsRepositorySlickSpec
 
   "Topics repository getAllSortedByLastActivity" should "return filtered list with topics" in {
     Await.result(topicsRepository.init(Seq(
-      Topic(None, "tmp", tmpUser),
-      Topic(None, "tmp", tmpUser),
-      Topic(None, "tmp", tmpUser),
-      Topic(None, "tmp", tmpUser))), timeout)
+      Topic(None, "tmp", "test", tmpUser),
+      Topic(None, "tmp", "test", tmpUser),
+      Topic(None, "tmp", "test", tmpUser),
+      Topic(None, "tmp", "test", tmpUser))), timeout)
 
     topicsRepository.getAllSortedByLastActivity(1, 1) map {
       result => result.length mustBe 1
@@ -83,7 +83,7 @@ class TopicsRepositorySlickSpec
     topicsRepository.getAllSortedByLastActivity(0, 22) map {
       result => result.length mustBe 4
     }
-    topicsRepository.createNew(Topic(None, "tmp", tmpUser)) flatMap  {
+    topicsRepository.createNew(Topic(None, "tmp", "test", tmpUser)) flatMap  {
       result => topicsRepository.getAllSortedByLastActivity(0, 1) map {
         result => result.map(_.id) mustBe Seq(Some(TopicId(5)))
       }
@@ -93,7 +93,7 @@ class TopicsRepositorySlickSpec
   "Topics repository create new" should "create new row in table" in {
     Await.result(topicsRepository.init(), timeout)
 
-    topicsRepository.createNew(Topic(None, "tmp", tmpUser)) flatMap {
+    topicsRepository.createNew(Topic(None, "tmp", "test", tmpUser)) flatMap {
       result => result mustBe TopicId(1)
         topicsRepository.getById(TopicId(1)) map {
           r => r.flatMap(_.id) mustBe Some(TopicId(1))
@@ -104,14 +104,14 @@ class TopicsRepositorySlickSpec
   "Topics repository create new" should "return topicId" in {
     Await.result(topicsRepository.init(), timeout)
 
-    topicsRepository.createNew(Topic(None, "tmp", tmpUser)) map {
+    topicsRepository.createNew(Topic(None, "tmp", "test", tmpUser)) map {
       result => result mustBe TopicId(1)
     }
   }
 
   "Topics repository when add new post to topic" should "update timestamp" in {
     val postsRepository = new PostsRepositorySlickImpl(config)
-    Await.result(topicsRepository.init(Seq(Topic(None, "tmp", tmpUser))), timeout)
+    Await.result(topicsRepository.init(Seq(Topic(None, "tmp", "test", tmpUser))), timeout)
     Await.result(postsRepository.init(), timeout)
 
     topicsRepository.getById(TopicId(1)) flatMap  {

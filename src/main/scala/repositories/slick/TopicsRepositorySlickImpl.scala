@@ -1,6 +1,6 @@
 package repositories.slick
 
-import models.{Topic, TopicId}
+import model.{Topic, TopicId}
 import repositories.interfaces.TopicsRepository
 import slick.basic.DatabaseConfig
 import slick.dbio.DBIOAction

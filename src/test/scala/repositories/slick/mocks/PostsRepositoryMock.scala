@@ -3,7 +3,7 @@ package repositories.slick.mocks
 import java.sql.Timestamp
 import java.time.LocalDateTime
 
-import models.{Post, PostId, TopicId}
+import model.{Post, PostId, TopicId}
 import repositories.interfaces.PostsRepository
 
 import scala.concurrent.Future
@@ -13,7 +13,7 @@ class PostsRepositoryMock(topics: TopicsRepositoryMock) extends PostsRepository 
   var db: Map[PostId, Post] = Map.empty
 
   override def init(initValues: Seq[Post]): Future[Unit] = {
-    db = initValues.zipWithIndex.map(p => (PostId(p._2), p._1.copy(id = Some(PostId(p._2))))).toMap
+    db = initValues.zipWithIndex.map(p => (PostId(p._2 + 1), p._1.copy(id = Some(PostId(p._2))))).toMap
     Future.successful()
   }
 

@@ -4,14 +4,16 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import commandServices._
 import confguration.ServerConfig
-import models.{PostId, PostSecret, TopicId}
+import model.{PostId, PostSecret, TopicId}
 import queryServices.ForumQueryService
 import spray.json._
+
+import scala.concurrent.{ExecutionContext, Future}
 
 
 class SimpleForumRoute(forumCommandService: ForumCommandService,
                        forumQueryService: ForumQueryService,
-                       serverConfig: ServerConfig) extends ForumJsonSupport {
+                       serverConfig: ServerConfig)(implicit ec: ExecutionContext) extends ForumJsonSupport {
 
   val offsetErrorMessage = "Offset can't be smaller than 0"
 
@@ -84,10 +86,10 @@ class SimpleForumRoute(forumCommandService: ForumCommandService,
       }
     }
 
-  private def handleResponse[T](response: Either[FailureResponse, T])(implicit writer: JsonWriter[T]): Route = {
+  private def handleResponse[T](response: Future[Either[CommandFailure, T]])(implicit writer: JsonWriter[T]): Route = {
     complete {
-      response match {
-        case Left(failure) => failure.code -> failure.msg
+      response map {
+        case Left(failure) => failure.msg
         case Right(response) => response.toJson.toString()
       }
     }

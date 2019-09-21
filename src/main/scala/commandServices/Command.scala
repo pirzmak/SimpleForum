@@ -1,6 +1,6 @@
 package commandServices
 
-import models.User
+import model.User
 
 trait Command
 case class CreateNewTopic(topicName: String, message: String, creator: User) extends Command

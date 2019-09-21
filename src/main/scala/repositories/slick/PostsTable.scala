@@ -1,6 +1,6 @@
 package repositories.slick
 
-import models.Post
+import model.Post
 
 trait PostsTable extends TopicsTable { this: Db =>
   import config.profile.api._

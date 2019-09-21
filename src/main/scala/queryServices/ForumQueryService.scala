@@ -1,7 +1,7 @@
 package queryServices
 
 import confguration.ServerConfig
-import models.{Post, PostId, Topic, TopicId}
+import model.{Post, PostId, Topic, TopicId}
 import repositories.interfaces.{PostsRepository, TopicsRepository}
 
 import scala.concurrent.Future

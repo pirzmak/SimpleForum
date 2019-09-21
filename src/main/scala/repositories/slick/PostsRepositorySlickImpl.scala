@@ -3,7 +3,7 @@ package repositories.slick
 import java.sql.Timestamp
 import java.time.LocalDateTime
 
-import models.{Post, PostId, TopicId}
+import model.{Post, PostId, TopicId}
 import repositories.interfaces.PostsRepository
 import slick.basic.DatabaseConfig
 import slick.dbio.DBIOAction

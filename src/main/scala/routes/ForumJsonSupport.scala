@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import commandServices.{CreateNewPost, CreateNewTopic, PostCommandResponse, TopicCommandResponse, UpdatePost}
-import models.{Post, PostId, PostSecret, Topic, TopicId, User}
+import model.{Post, PostId, PostSecret, Topic, TopicId, User}
 import spray.json._
 
 trait ForumJsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
@@ -39,9 +39,9 @@ trait ForumJsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 
   implicit val topicCommandResponseJsonFormat: RootJsonFormat[TopicCommandResponse] = jsonFormat1(TopicCommandResponse)
 
-  implicit val postCommandResponseJsonFormat: RootJsonFormat[PostCommandResponse] = jsonFormat2(PostCommandResponse)
+  implicit val postCommandResponseJsonFormat: RootJsonFormat[PostCommandResponse] = jsonFormat1(PostCommandResponse)
 
-  implicit val topicJsonFormat: RootJsonFormat[Topic] = jsonFormat4(Topic.apply)
+  implicit val topicJsonFormat: RootJsonFormat[Topic] = jsonFormat5(Topic.apply)
 
   implicit val postJsonFormat: RootJsonFormat[Post] = jsonFormat4(Post.apply)
 }

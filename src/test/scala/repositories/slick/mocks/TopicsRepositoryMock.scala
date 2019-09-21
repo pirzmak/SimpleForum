@@ -1,6 +1,6 @@
 package repositories.slick.mocks
 
-import models.{Topic, TopicId}
+import model.{Topic, TopicId}
 import repositories.interfaces.TopicsRepository
 
 import scala.concurrent.Future
@@ -9,7 +9,7 @@ class TopicsRepositoryMock extends TopicsRepository {
   var db: Map[TopicId, Topic] = Map.empty
 
   override def init(initValues: Seq[Topic]): Future[Unit] = {
-    db = initValues.zipWithIndex.map(p => (TopicId(p._2), p._1.copy(id = Some(TopicId(p._2))))).toMap
+    db = initValues.zipWithIndex.map(p => (TopicId(p._2 + 1), p._1.copy(id = Some(TopicId(p._2))))).toMap
     Future.successful()
   }
 
