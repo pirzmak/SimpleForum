@@ -1,9 +1,6 @@
 package repositories.slick
 
 
-import java.sql.Timestamp
-import java.time.LocalDateTime
-
 import models.{Post, PostId, Topic, TopicId, User}
 import org.h2.jdbc.JdbcException
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, MustMatchers}
@@ -64,15 +61,23 @@ class PostsRepositorySlickSpec
   "Empty posts repository getAll method" should "return empty list" in {
     Await.result(postsRepository.init(), timeout)
 
-    postsRepository.getAll(PostId(1), 3, 3) map {
+    postsRepository.getAll(topicId, Some(PostId(1)), 3, 3) map {
       result => result mustBe Seq.empty
+    }
+  }
+
+  "Posts repository getAll method from start" should "return list with posts" in {
+    Await.result(postsRepository.init(Seq(Post(Some(PostId(1)), topicId, "tmp", tmpUser))), timeout)
+
+    postsRepository.getAll(topicId, None, 0, 0) map {
+      result => result.length mustBe 1
     }
   }
 
   "Posts repository getAll method" should "return list with posts" in {
     Await.result(postsRepository.init(Seq(Post(Some(PostId(1)), topicId, "tmp", tmpUser))), timeout)
 
-    postsRepository.getAll(PostId(1), 3, 3) map {
+    postsRepository.getAll(topicId, Some(PostId(1)), 0, 0) map {
       result => result.length mustBe 1
     }
   }
@@ -83,7 +88,7 @@ class PostsRepositorySlickSpec
       Post(Some(PostId(3)), topicId, "tmp", tmpUser),
       Post(Some(PostId(4)), topicId, "tmp", tmpUser))), timeout)
 
-    postsRepository.getAll(PostId(3), 1, 1) map {
+    postsRepository.getAll(topicId, Some(PostId(3)), 1, 1) map {
       result => result mustBe Seq(
         Post(Some(PostId(2)), topicId, "tmp", tmpUser),
         Post(Some(PostId(3)), topicId, "tmp", tmpUser),
@@ -96,7 +101,7 @@ class PostsRepositorySlickSpec
 
     postsRepository.createNew(Post(None, topicId, "tmp", tmpUser)) flatMap {
       result => result mustBe PostId(1)
-        postsRepository.getAll(PostId(1), 3, 3) map {
+        postsRepository.getAll(topicId, Some(PostId(1)), 3, 3) map {
           r => r.length mustBe 1
         }
     }
@@ -140,7 +145,7 @@ class PostsRepositorySlickSpec
     Await.result(postsRepository.init(Seq(Post(Some(PostId(1)), topicId, "tmp", tmpUser))), timeout)
 
     postsRepository.delete(PostId(1)) flatMap {
-      result => postsRepository.getAll(PostId(1), 5, 5) map {
+      result => postsRepository.getAll(topicId, Some(PostId(1)), 5, 5) map {
         r => r.length mustBe 0
       }
     }

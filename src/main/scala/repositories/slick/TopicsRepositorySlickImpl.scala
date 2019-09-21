@@ -1,8 +1,6 @@
 package repositories.slick
 
-import java.time.LocalDateTime
-
-import models.{PostId, Topic, TopicId, User}
+import models.{Topic, TopicId}
 import repositories.interfaces.TopicsRepository
 import slick.basic.DatabaseConfig
 import slick.dbio.DBIOAction

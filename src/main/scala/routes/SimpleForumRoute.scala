@@ -3,22 +3,27 @@ package routes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import commandServices._
+import confguration.ServerConfig
 import models.{PostId, PostSecret, TopicId}
 import queryServices.ForumQueryService
 import spray.json._
 
-import scala.reflect.ClassTag
 
 class SimpleForumRoute(forumCommandService: ForumCommandService,
-                       forumQueryService: ForumQueryService) extends ForumJsonSupport {
+                       forumQueryService: ForumQueryService,
+                       serverConfig: ServerConfig) extends ForumJsonSupport {
+
+  val offsetErrorMessage = "Offset can't be smaller than 0"
 
   def route: Route =
     pathPrefix("forum") {
       path("topics") {
         get {
           parameters("offset".as[Int].?, "limit".as[Int].?) { (offset, limit) =>
-            complete {
-              forumQueryService.getTopicsList(offset, limit)
+            validate(offset.getOrElse(0) >= 0, offsetErrorMessage) {
+              complete {
+                forumQueryService.getTopicsSortedByLastActive(offset, limit)
+              }
             }
           }
         } ~
@@ -37,13 +42,15 @@ class SimpleForumRoute(forumCommandService: ForumCommandService,
       pathPrefix("topic" / Segment) { topicId =>
         path("posts") {
           get {
-            parameters("postId".as[Int], "offsetBefore".as[Int].?, "offsetAfter".as[Int].?) {
-              (postId, offsetBefore, offsetAfter) =>
-                complete {
-                  forumQueryService.getTopicPosts(
-                    TopicId(topicId.toInt),
-                    PostId(postId),
-                    offsetBefore, offsetAfter)
+            parameters("postId".as[Int].?, "elementsBefore".as[Int].?, "elementsAfter".as[Int].?) {
+              (postId, elementsBefore, elementsAfter) =>
+                validate(elementsBefore.getOrElse(0) >= 0 && elementsAfter.getOrElse(0) >= 0, offsetErrorMessage) {
+                  complete {
+                    forumQueryService.getTopicPosts(
+                      TopicId(topicId.toInt),
+                      postId.map(PostId),
+                      elementsBefore, elementsAfter)
+                  }
                 }
             }
           } ~
@@ -77,7 +84,7 @@ class SimpleForumRoute(forumCommandService: ForumCommandService,
       }
     }
 
-  private def handleResponse[T: ClassTag](response: Either[FailureResponse, T])(implicit writer: JsonWriter[T]): Route = {
+  private def handleResponse[T](response: Either[FailureResponse, T])(implicit writer: JsonWriter[T]): Route = {
     complete {
       response match {
         case Left(failure) => failure.code -> failure.msg

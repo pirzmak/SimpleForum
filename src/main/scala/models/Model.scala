@@ -3,8 +3,6 @@ package models
 import java.sql.Timestamp
 import java.time.LocalDateTime
 
-import slick.lifted.MappedTo
-
 case class TopicId(value: Int)
 case class PostId(value: Int)
 case class UserId(value: Int)

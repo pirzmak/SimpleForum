@@ -1,6 +1,6 @@
 package repositories.interfaces
 
-import models.{PostId, Topic, TopicId}
+import models.{Topic, TopicId}
 
 import scala.concurrent.Future
 

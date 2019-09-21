@@ -66,11 +66,26 @@ class PostsRepositorySlickImpl(val config: DatabaseConfig[JdbcProfile])(implicit
   override def getById(postId: PostId): Future[Option[Post]] =
     db.run(posts.filter(_.id === postId.value).result.headOption)
 
-  override def getAll(actualPost: PostId, beforeNo: Int, afterNo: Int): Future[Seq[Post]] =
+  override def getAll(topicId: TopicId, actualPost: Option[PostId], beforeNo: Int, afterNo: Int): Future[Seq[Post]] =
     {
-      val before = posts.sortBy(_.id.desc).filter(_.id <= actualPost.value).take(beforeNo + 1)
-      val after = posts.sortBy(_.id).filter(_.id > actualPost.value).take(afterNo)
-      db.run((before ++ after).sortBy(_.id).result)
+      val topicPosts = posts.filter(_.topic_id === topicId.value)
+      actualPost match {
+        case Some(postId) =>
+          val before = topicPosts.
+            sortBy(_.id.desc).
+            filter(_.id <= postId.value).
+            take(beforeNo + 1)
+          val after = topicPosts.
+            sortBy(_.id).
+            filter(_.id > postId.value).
+            take(afterNo)
+          db.run((before ++ after).sortBy(_.id).result)
+        case None =>
+          val posts = topicPosts.
+            sortBy(_.id).
+            take(afterNo + 1)
+          db.run(posts.result)
+      }
     }
 
   private def updateTopicAction(topicId: TopicId) = {

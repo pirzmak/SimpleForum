@@ -1,6 +1,6 @@
 package repositories.interfaces
 
-import models.{Post, PostId}
+import models.{Post, PostId, TopicId}
 
 import scala.concurrent.Future
 
@@ -11,5 +11,5 @@ trait PostsRepository {
   def update(postId: PostId, newMessage: String): Future[PostId]
   def delete(postId: PostId): Future[Boolean]
   def getById(postId: PostId): Future[Option[Post]]
-  def getAll(actualPost: PostId, beforeNo: Int, afterNo: Int): Future[Seq[Post]]
+  def getAll(topicId: TopicId, actualPost: Option[PostId], beforeNo: Int, afterNo: Int): Future[Seq[Post]]
 }
