@@ -28,7 +28,8 @@ object Post {
   }
 
   def toRecord(post: Post): Option[(Option[Int], Int, String, String, String, Timestamp, Timestamp)] = {
-    Some((post.id.map(_.value), post.topicId.value, post.message, post.creator.nickName, post.creator.email, post.createdTime, post.lastModification))
+    Some((post.id.map(_.value), post.topicId.value, post.message, post.creator.nickName, post.creator.email,
+      post.createdTime, post.lastModification))
   }
 }
 

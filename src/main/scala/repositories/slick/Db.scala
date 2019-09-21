@@ -1,6 +1,7 @@
 package repositories.slick
 
 import slick.basic.DatabaseConfig
+import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.JdbcProfile
 import slick.jdbc.meta.MTable
 

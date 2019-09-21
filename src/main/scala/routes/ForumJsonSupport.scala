@@ -6,9 +6,10 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import commandServices.{CreateNewPost, CreateNewTopic, PostCommandResponse, TopicCommandResponse, UpdatePost}
-import model.{Post, PostId, PostSecret, Topic, TopicId, User}
 import spray.json._
+
+import commandServices.{CreateNewPost, CreateNewTopic, PostCommandResponse, TopicCommandResponse, UpdatePost}
+import model._
 
 trait ForumJsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val localDateTimeJsonFormat: JsonFormat[Timestamp] =

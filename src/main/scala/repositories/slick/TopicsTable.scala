@@ -3,7 +3,6 @@ package repositories.slick
 import java.sql.Timestamp
 
 import model.Topic
-import slick.sql.SqlProfile.ColumnOption.SqlType
 
 trait TopicsTable { this: Db =>
   import config.profile.api._
@@ -15,7 +14,7 @@ trait TopicsTable { this: Db =>
     def text = column[String]("TEXT")
     def creator_nickName = column[String]("CREATOR_NICKNAME")
     def creator_email = column[String]("CREATOR_EMAIL")
-    def last_modified = column[Timestamp]("LAST_MODIFIED", SqlType("timestamp not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP"))
+    def last_modified = column[Timestamp]("LAST_MODIFIED")
 
     // Select
     def * = (id.?, title, text, creator_nickName, creator_email, last_modified) <>

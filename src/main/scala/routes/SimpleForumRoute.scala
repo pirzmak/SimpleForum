@@ -2,13 +2,14 @@ package routes
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+import spray.json._
+
+import scala.concurrent.{ExecutionContext, Future}
+
 import commandServices._
 import confguration.ServerConfig
 import model.{PostId, PostSecret, TopicId}
 import queryServices.ForumQueryService
-import spray.json._
-
-import scala.concurrent.{ExecutionContext, Future}
 
 
 class SimpleForumRoute(forumCommandService: ForumCommandService,
@@ -33,7 +34,7 @@ class SimpleForumRoute(forumCommandService: ForumCommandService,
           entity(as[CreateNewTopic]) { command =>
             handleResponse[TopicCommandResponse] {
               forumCommandService.createNewTopic(
-                command.topicName,
+                command.title,
                 command.message,
                 command.creator
               )

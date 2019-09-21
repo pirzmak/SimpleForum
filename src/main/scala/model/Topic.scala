@@ -15,4 +15,5 @@ object Topic {
   }
 }
 
-case class Topic(id: Option[TopicId], title: String, text: String, creator: User, lastModified: Timestamp = Timestamp.valueOf(LocalDateTime.now()))
+case class Topic(id: Option[TopicId], title: String, text: String, creator: User,
+                 lastModified: Timestamp = Timestamp.valueOf(LocalDateTime.now()))

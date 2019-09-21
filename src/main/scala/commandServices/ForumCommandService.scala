@@ -1,6 +1,6 @@
 package commandServices
 
-import model.{Post, PostId, PostSecret, PostSecretGenerator, Topic, TopicId, User}
+import model._
 import repositories.interfaces.{PostsRepository, TopicsRepository}
 
 import scala.concurrent.{ExecutionContext, Future}

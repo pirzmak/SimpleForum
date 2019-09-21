@@ -1,12 +1,13 @@
 package repositories.slick
 
-import model.{Topic, TopicId}
-import repositories.interfaces.TopicsRepository
 import slick.basic.DatabaseConfig
 import slick.dbio.DBIOAction
 import slick.jdbc.JdbcProfile
 
 import scala.concurrent.{ExecutionContext, Future}
+
+import model.{Topic, TopicId}
+import repositories.interfaces.TopicsRepository
 
 class TopicsRepositorySlickImpl(val config: DatabaseConfig[JdbcProfile])(implicit ec: ExecutionContext)
   extends TopicsRepository with Db with TopicsTable {

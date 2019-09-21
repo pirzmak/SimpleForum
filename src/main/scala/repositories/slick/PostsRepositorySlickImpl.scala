@@ -3,13 +3,13 @@ package repositories.slick
 import java.sql.Timestamp
 import java.time.LocalDateTime
 
-import model.{Post, PostId, TopicId}
-import repositories.interfaces.PostsRepository
 import slick.basic.DatabaseConfig
-import slick.dbio.DBIOAction
 import slick.jdbc.JdbcProfile
 
 import scala.concurrent.{ExecutionContext, Future}
+
+import model.{Post, PostId, TopicId}
+import repositories.interfaces.PostsRepository
 
 class PostsRepositorySlickImpl(val config: DatabaseConfig[JdbcProfile])(implicit ec: ExecutionContext)
   extends PostsRepository with Db with PostsTable {
@@ -19,7 +19,7 @@ class PostsRepositorySlickImpl(val config: DatabaseConfig[JdbcProfile])(implicit
   override def init(initValues: Seq[Post] = Seq.empty): Future[Unit] =
     if (!tableExists("POSTS")) {
       db.run(
-        DBIOAction.seq(
+        DBIO.seq(
           posts.schema.create,
           posts ++= initValues
         ))
@@ -42,12 +42,12 @@ class PostsRepositorySlickImpl(val config: DatabaseConfig[JdbcProfile])(implicit
   override def update(postId: PostId, newMessage: String): Future[PostId] = {
     val query = for {
       post <- posts if post.id === postId.value
-    } yield post.text
+    } yield (post.text, post.last_modified)
 
     val action = for {
       post <- posts.filter(_.id === postId.value).result.head
       _ <- updateTopicAction(post.topicId)
-      a <- query.update(newMessage)
+      a <- query.update(newMessage, Timestamp.valueOf(LocalDateTime.now()))
     } yield a
 
     db.run(action.transactionally).map(_ => postId)
