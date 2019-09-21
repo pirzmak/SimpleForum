@@ -43,10 +43,11 @@ class PostsRepositorySlickSpec
   }
 
   "Posts repository getById method" should "return element" in {
-    Await.result(postsRepository.init(Seq(Post(None, topicId, "tmp", tmpUser))), timeout)
+    val post = Post(Some(PostId(1)), topicId, "tmp", tmpUser)
+    Await.result(postsRepository.init(Seq(post)), timeout)
 
     postsRepository.getById(PostId(1)) map {
-      result => result mustBe Some(Post(Some(PostId(1)), topicId, "tmp", tmpUser))
+      result => result mustBe Some(post)
     }
   }
 
@@ -83,16 +84,15 @@ class PostsRepositorySlickSpec
   }
 
   "Posts repository getAll method with limits" should "return filtered list with posts" in {
-    Await.result(postsRepository.init(Seq(Post(Some(PostId(1)), topicId, "tmp", tmpUser),
+    val posts = Seq(Post(Some(PostId(1)), topicId, "tmp", tmpUser),
       Post(Some(PostId(2)), topicId, "tmp", tmpUser),
       Post(Some(PostId(3)), topicId, "tmp", tmpUser),
-      Post(Some(PostId(4)), topicId, "tmp", tmpUser))), timeout)
+      Post(Some(PostId(4)), topicId, "tmp", tmpUser))
+
+    Await.result(postsRepository.init(posts), timeout)
 
     postsRepository.getAll(topicId, Some(PostId(3)), 1, 1) map {
-      result => result mustBe Seq(
-        Post(Some(PostId(2)), topicId, "tmp", tmpUser),
-        Post(Some(PostId(3)), topicId, "tmp", tmpUser),
-        Post(Some(PostId(4)), topicId, "tmp", tmpUser))
+      result => result mustBe posts.tail
     }
   }
 

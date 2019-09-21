@@ -43,5 +43,5 @@ trait ForumJsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
 
   implicit val topicJsonFormat: RootJsonFormat[Topic] = jsonFormat5(Topic.apply)
 
-  implicit val postJsonFormat: RootJsonFormat[Post] = jsonFormat4(Post.apply)
+  implicit val postJsonFormat: RootJsonFormat[Post] = jsonFormat6(Post.apply)
 }

@@ -27,7 +27,7 @@ class ForumCommandService(topicsRepository: TopicsRepository,
         map(_ => Right(PostCommandResponse(postSecret)))
     }
   }
-  
+
   def deletePost(postSecret: PostSecret): Future[Either[CommandFailure, PostCommandResponse]] = {
     checkPostSecret(postSecret) { postId =>
       postsRepository.delete(postId).
