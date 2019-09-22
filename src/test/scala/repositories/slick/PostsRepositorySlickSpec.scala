@@ -34,7 +34,7 @@ class PostsRepositorySlickSpec
     Await.result(topicsRepository.drop(), timeout)
   }
 
-  "Empty posts repository getById method" should "return None" in {
+  "Empty posts repository when getById" should "return None" in {
     Await.result(postsRepository.init(), timeout)
 
     postsRepository.getById(PostId(1)) map {
@@ -42,7 +42,7 @@ class PostsRepositorySlickSpec
     }
   }
 
-  "Posts repository getById method" should "return element" in {
+  "Posts repository with posts when getById with proper id" should "return element" in {
     val post = Post(Some(PostId(1)), topicId, "tmp", tmpUser)
     Await.result(postsRepository.init(Seq(post)), timeout)
 
@@ -51,7 +51,7 @@ class PostsRepositorySlickSpec
     }
   }
 
-  "Posts repository getById method with wrong id" should "return None" in {
+  "Posts repository with posts when getById with wrong id" should "return None" in {
     Await.result(postsRepository.init(Seq(Post(Some(PostId(1)), topicId, "tmp", tmpUser))), timeout)
 
     postsRepository.getById(PostId(2)) map {
@@ -59,7 +59,7 @@ class PostsRepositorySlickSpec
     }
   }
 
-  "Empty posts repository getAll method" should "return empty list" in {
+  "Empty posts repository when getAll" should "return empty" in {
     Await.result(postsRepository.init(), timeout)
 
     postsRepository.getAll(topicId, Some(PostId(1)), 3, 3) map {
@@ -67,7 +67,7 @@ class PostsRepositorySlickSpec
     }
   }
 
-  "Posts repository getAll method from start" should "return list with posts" in {
+  "Posts repository with posts when getAll from start" should "return list with posts" in {
     Await.result(postsRepository.init(Seq(Post(Some(PostId(1)), topicId, "tmp", tmpUser))), timeout)
 
     postsRepository.getAll(topicId, None, 0, 0) map {
@@ -75,7 +75,7 @@ class PostsRepositorySlickSpec
     }
   }
 
-  "Posts repository getAll method" should "return list with posts" in {
+  "Posts repository with posts when getAll from some post" should "return list with posts" in {
     Await.result(postsRepository.init(Seq(Post(Some(PostId(1)), topicId, "tmp", tmpUser))), timeout)
 
     postsRepository.getAll(topicId, Some(PostId(1)), 0, 0) map {
@@ -83,7 +83,7 @@ class PostsRepositorySlickSpec
     }
   }
 
-  "Posts repository getAll method with limits" should "return filtered list with posts" in {
+  "Posts repository with posts when getAll with limits" should "return limited list with posts" in {
     val posts = Seq(Post(Some(PostId(1)), topicId, "tmp", tmpUser),
       Post(Some(PostId(2)), topicId, "tmp", tmpUser),
       Post(Some(PostId(3)), topicId, "tmp", tmpUser),
@@ -96,7 +96,7 @@ class PostsRepositorySlickSpec
     }
   }
 
-  "Posts repository create new" should "create new row in table" in {
+  "Posts repository when create new" should "create new row in table" in {
     Await.result(postsRepository.init(), timeout)
 
     postsRepository.createNew(Post(topicId, "tmp", tmpUser)) flatMap {
@@ -107,7 +107,7 @@ class PostsRepositorySlickSpec
     }
   }
 
-  "Posts repository create new" should "return postId" in {
+  "Posts repository when create new" should "return postId" in {
     Await.result(postsRepository.init(), timeout)
 
     postsRepository.createNew(Post(topicId, "tmp", tmpUser)) map {
@@ -115,7 +115,7 @@ class PostsRepositorySlickSpec
     }
   }
 
-  "Posts repository create new with wrong topicId" should "return failure" in {
+  "Posts repository whe create new with wrong topicId" should "return failure" in {
     Await.result(postsRepository.init(), timeout)
 
     postsRepository.createNew(Post(TopicId(3), "tmp", tmpUser)).failed map {
@@ -123,15 +123,15 @@ class PostsRepositorySlickSpec
     }
   }
 
-  "Posts repository edit post" should "return postId" in {
+  "Posts repository when edit post" should "return postId" in {
     Await.result(postsRepository.init(Seq(Post(Some(PostId(1)), topicId, "tmp", tmpUser))), timeout)
 
     postsRepository.update(PostId(1), "newMessage") map {
-      result => result mustBe PostId(1)
+      result => result mustBe true
     }
   }
 
-  "Posts repository edit post" should "edit row in table" in {
+  "Posts repository when edit post" should "edit row in table" in {
     Await.result(postsRepository.init(Seq(Post(Some(PostId(1)), topicId, "tmp", tmpUser))), timeout)
 
     postsRepository.update(PostId(1), "newMessage") flatMap {
@@ -141,13 +141,29 @@ class PostsRepositorySlickSpec
     }
   }
 
-  "Posts repository delete post" should "delete row row from table" in {
+  "Posts repository when edit post with wrong Id" should "return failure" in {
+    Await.result(postsRepository.init(Seq(Post(Some(PostId(1)), topicId, "tmp", tmpUser))), timeout)
+
+    postsRepository.update(PostId(0), "newMessage") map {
+      result => result mustBe false
+    }
+  }
+
+  "Posts repository when delete post" should "delete row row from table" in {
     Await.result(postsRepository.init(Seq(Post(Some(PostId(1)), topicId, "tmp", tmpUser))), timeout)
 
     postsRepository.delete(PostId(1)) flatMap {
       result => postsRepository.getAll(topicId, Some(PostId(1)), 5, 5) map {
         r => r.length mustBe 0
       }
+    }
+  }
+
+  "Posts repository when delete post with wrong Id" should "return failure" in {
+    Await.result(postsRepository.init(Seq(Post(Some(PostId(1)), topicId, "tmp", tmpUser))), timeout)
+
+    postsRepository.delete(PostId(0)) map {
+      result => result mustBe false
     }
   }
 }

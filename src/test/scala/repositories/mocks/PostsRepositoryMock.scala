@@ -30,13 +30,13 @@ class PostsRepositoryMock(topics: TopicsRepositoryMock) extends PostsRepository 
     }
   }
 
-  override def update(postId: PostId, newMessage: String): Future[PostId] = {
+  override def update(postId: PostId, newMessage: String): Future[Boolean] = {
     db.get(postId) match {
       case None => Future.failed(throw new IllegalArgumentException)
       case Some(post) =>
         updateTopic(post.topicId) {
           db = db + (postId -> post.copy(message = newMessage))
-          Future.successful(postId)
+          Future.successful(true)
         }
     }
   }

@@ -24,7 +24,7 @@ class TopicsRepositorySlickSpec
     Await.result(topicsRepository.drop(), timeout)
   }
 
-  "Empty topics repository getById method" should "return None" in {
+  "Empty topic repository when getById" should "return None" in {
     Await.result(topicsRepository.init(), timeout)
 
     topicsRepository.getById(TopicId(1)) map {
@@ -32,7 +32,7 @@ class TopicsRepositorySlickSpec
     }
   }
 
-  "Topics repository getById method" should "return element" in {
+  "Topics repository with topics when getById" should "return element" in {
     Await.result(topicsRepository.init(Seq(Topic("tmp", "test", tmpUser))), timeout)
 
     topicsRepository.getById(TopicId(1)) map {
@@ -40,7 +40,7 @@ class TopicsRepositorySlickSpec
     }
   }
 
-  "Topics repository getById method with wrong id" should "return None" in {
+  "Topics repository with topics getById with wrong id" should "return None" in {
     Await.result(topicsRepository.init(Seq(Topic("tmp", "test", tmpUser))), timeout)
 
     topicsRepository.getById(TopicId(2)) map {
@@ -48,7 +48,7 @@ class TopicsRepositorySlickSpec
     }
   }
 
-  "Empty topics repository getAllSortedByLastActivity" should "return empty list" in {
+  "Empty topics repository when getAllSortedByLastActivity" should "return empty list" in {
     Await.result(topicsRepository.init(), timeout)
 
     topicsRepository.getAllSortedByLastActivity( 0, 3) map {
@@ -56,7 +56,7 @@ class TopicsRepositorySlickSpec
     }
   }
 
-  "Topics repository getAllSortedByLastActivity" should "return list with topics" in {
+  "Topics repository with topics when getAllSortedByLastActivity" should "return list with topics" in {
     Await.result(topicsRepository.init(Seq(Topic("tmp", "test", tmpUser))), timeout)
 
     topicsRepository.getAllSortedByLastActivity(0, 3) map {
@@ -64,7 +64,7 @@ class TopicsRepositorySlickSpec
     }
   }
 
-  "Topics repository getAllSortedByLastActivity" should "return filtered list with topics" in {
+  "Topics repository with topics when getAllSortedByLastActivity" should "return filtered list with topics" in {
     Await.result(topicsRepository.init(Seq(
       Topic("tmp", "test", tmpUser),
       Topic("tmp", "test", tmpUser),
@@ -90,7 +90,7 @@ class TopicsRepositorySlickSpec
     }
   }
 
-  "Topics repository create new" should "create new row in table" in {
+  "Topics repository when create new" should "create new row in table" in {
     Await.result(topicsRepository.init(), timeout)
 
     topicsRepository.createNew(Topic("tmp", "test", tmpUser)) flatMap {
@@ -101,7 +101,7 @@ class TopicsRepositorySlickSpec
     }
   }
 
-  "Topics repository create new" should "return topicId" in {
+  "Topics repository when create new" should "return topicId" in {
     Await.result(topicsRepository.init(), timeout)
 
     topicsRepository.createNew(Topic("tmp", "test", tmpUser)) map {

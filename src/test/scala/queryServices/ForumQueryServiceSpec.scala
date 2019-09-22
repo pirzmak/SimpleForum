@@ -60,7 +60,7 @@ class ForumQueryServiceSpec
 
   val forumQueryService = new ForumQueryService(topicsRepository, postsRepository, config)
 
-  "When getTopicsSortedByLastActive method with no offset and no limit" should "return default values" in {
+  "Forum query service when getTopicsSortedByLastActive with no offset and no limit" should "return default number of topics" in {
     forumQueryService.getTopicsSortedByLastActive(None, None) map {
       result => result.length mustBe paginationDefault
     }
@@ -69,19 +69,19 @@ class ForumQueryServiceSpec
     }
   }
 
-  "When getTopicsSortedByLastActive method with overLimit" should "return max values" in {
+  "Forum query service when getTopicsSortedByLastActive with overLimit" should "return max number of topics" in {
     forumQueryService.getTopicsSortedByLastActive(None, Some(paginationMaxLimit * 2)) map {
       result => result.length mustBe paginationMaxLimit
     }
   }
 
-  "When getTopicsSortedByLastActive with offset more than records" should "return empty" in {
+  "Forum query service when getTopicsSortedByLastActive with offset too big" should "return empty" in {
     forumQueryService.getTopicsSortedByLastActive(Some(topicsRepository.db.size + 1), Some(1)) map {
       result => result mustBe Seq.empty
     }
   }
 
-  "When getTopicsSortedByLastActive with offset 0" should "return newest topics" in {
+  "Forum query service when getTopicsSortedByLastActive with offset 0" should "return newest topics" in {
     forumQueryService.getTopicsSortedByLastActive(None, Some(10)) map {
       result => result.length mustBe 10
     }
@@ -91,7 +91,7 @@ class ForumQueryServiceSpec
     }
   }
 
-  "When getTopicsSortedByLastActive with offset 1" should "return next topics" in {
+  "Forum query service when getTopicsSortedByLastActive with offset 1" should "return next topics" in {
     forumQueryService.getTopicsSortedByLastActive(Some(1), Some(10)) map {
       result => result.length mustBe 10
     }
@@ -101,7 +101,7 @@ class ForumQueryServiceSpec
     }
   }
 
-  "When getTopicPosts method with no offset and no limit" should "return default topics" in {
+  "Forum query service when getTopicPosts with no offset and no limit" should "return default number of posts" in {
     forumQueryService.getTopicPosts(TopicId(1), None, None, None) map {
       result => result.length mustBe paginationDefault / 2
     }
@@ -110,19 +110,19 @@ class ForumQueryServiceSpec
     }
   }
 
-  "When getTopicPosts method" should "return sorted posts" in {
+  "Forum query service when getTopicPosts" should "return sorted posts" in {
     forumQueryService.getTopicPosts(TopicId(1), None, None, Some(1)) map {
       result => result mustBe postsRepository.db.toList.map(_._2).filter(_.topicId == TopicId(1)).sortBy(_.id.get.value).takeRight(2).reverse
     }
   }
 
-  "When getTopicPosts method get offsets bigger than limit" should "return limit size posts" in {
+  "Forum query service when getTopicPosts with offsets bigger than limit" should "return max number of posts" in {
     forumQueryService.getTopicPosts(TopicId(1), Some(PostId(50)), Some(paginationMaxLimit), Some(paginationMaxLimit)) map {
       result => result.length mustBe paginationMaxLimit
     }
   }
 
-  "When getTopicPosts method get offsets bigger than limit" should "return proper before and after posts" in {
+  "Forum query service when getTopicPosts with offsets bigger than limit" should "return proper ration of before and after posts" in {
     forumQueryService.getTopicPosts(TopicId(1), Some(PostId(50)), Some(paginationMaxLimit * 2), Some(paginationMaxLimit)) map {
       result =>
         val (before, after) = result.span(_.id.get != PostId(50))
@@ -130,7 +130,7 @@ class ForumQueryServiceSpec
     }
   }
 
-  "When getTopicPosts method offset 1" should "return 3 posts" in {
+  "Forum query service when getTopicPosts with after and before offset 1" should "return 3 posts" in {
     forumQueryService.getTopicPosts(TopicId(1), Some(PostId(50)), Some(1), Some(1)) map {
       result => result.length mustBe 3
     }
