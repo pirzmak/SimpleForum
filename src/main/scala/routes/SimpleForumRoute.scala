@@ -35,7 +35,7 @@ class SimpleForumRoute(forumCommandService: ForumCommandService,
             handleResponse[TopicCommandResponse] {
               forumCommandService.createNewTopic(
                 command.title,
-                command.message,
+                command.text,
                 command.creator
               )
             }
@@ -45,7 +45,7 @@ class SimpleForumRoute(forumCommandService: ForumCommandService,
       pathPrefix("topic" / Segment) { topicId =>
         path("posts") {
           get {
-            parameters("postId".as[Int].?, "elementsBefore".as[Int].?, "elementsAfter".as[Int].?) {
+            parameters("postId".as[Int].?, "before".as[Int].?, "after".as[Int].?) {
               (postId, elementsBefore, elementsAfter) =>
                 validate(elementsBefore.getOrElse(0) >= 0 && elementsAfter.getOrElse(0) >= 0, offsetErrorMessage) {
                   complete {
@@ -66,21 +66,21 @@ class SimpleForumRoute(forumCommandService: ForumCommandService,
                   command.creator)
               }
             }
-          } ~
-          path(Segment) { postSecret =>
-            put {
-              entity(as[UpdatePost]) { command =>
-                handleResponse[PostCommandResponse] {
-                  forumCommandService.updatePost(
-                    PostSecret(postSecret),
-                    command.newMessage)
-                }
-              }
-            } ~
-            delete {
+          }
+        } ~
+        path("posts" / Segment) { postSecret =>
+          put {
+            entity(as[UpdatePost]) { command =>
               handleResponse[PostCommandResponse] {
-                forumCommandService.deletePost(PostSecret(postSecret))
+                forumCommandService.updatePost(
+                  PostSecret(postSecret),
+                  command.newMessage)
               }
+            }
+          } ~
+          delete {
+            handleResponse[PostCommandResponse] {
+              forumCommandService.deletePost(PostSecret(postSecret))
             }
           }
         }
