@@ -9,7 +9,7 @@ To build and start application you can use script file start.sh
 ```
 ./start.sh
 ```
-or use sbt command run with parameter test
+or use sbt command run 
 ```
 sbt "run"
 ```
@@ -28,7 +28,10 @@ sudo apt-get install sbt
 ### Build
 
 To build application use sbt script
-
+```
+./build.sh
+```
+or use sbt command build
 ```
 sbt build
 ```
