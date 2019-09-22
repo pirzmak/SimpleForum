@@ -23,14 +23,13 @@ object Server {
     val serverConfig = ServerConfig.fromConfig
     val databaseConfig = DatabaseConfig.forConfig[JdbcProfile]("forum_db")
 
-
     val topicsRepository = new TopicsRepositorySlickImpl(databaseConfig)
     val postsRepository = new PostsRepositorySlickImpl(databaseConfig)
 
     topicsRepository.init()
     postsRepository.init()
 
-    val forumCommandService = new ForumCommandService(topicsRepository, postsRepository)
+    val forumCommandService = new ForumCommandService(topicsRepository, postsRepository, serverConfig)
     val forumQueryService = new ForumQueryService(topicsRepository, postsRepository, serverConfig)
 
     val mainRoute = new SimpleForumRoute(forumCommandService, forumQueryService, serverConfig)

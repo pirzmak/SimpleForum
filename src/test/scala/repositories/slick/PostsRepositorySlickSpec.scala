@@ -99,7 +99,7 @@ class PostsRepositorySlickSpec
   "Posts repository create new" should "create new row in table" in {
     Await.result(postsRepository.init(), timeout)
 
-    postsRepository.createNew(Post(None, topicId, "tmp", tmpUser)) flatMap {
+    postsRepository.createNew(Post(topicId, "tmp", tmpUser)) flatMap {
       result => result mustBe PostId(1)
         postsRepository.getAll(topicId, Some(PostId(1)), 3, 3) map {
           r => r.length mustBe 1
@@ -110,7 +110,7 @@ class PostsRepositorySlickSpec
   "Posts repository create new" should "return postId" in {
     Await.result(postsRepository.init(), timeout)
 
-    postsRepository.createNew(Post(None, topicId, "tmp", tmpUser)) map {
+    postsRepository.createNew(Post(topicId, "tmp", tmpUser)) map {
       result => result mustBe PostId(1)
     }
   }
@@ -118,7 +118,7 @@ class PostsRepositorySlickSpec
   "Posts repository create new with wrong topicId" should "return failure" in {
     Await.result(postsRepository.init(), timeout)
 
-    postsRepository.createNew(Post(None, TopicId(3), "tmp", tmpUser)).failed map {
+    postsRepository.createNew(Post(TopicId(3), "tmp", tmpUser)).failed map {
       result => result mustBe a [JdbcException]
     }
   }

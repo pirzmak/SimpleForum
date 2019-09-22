@@ -1,12 +1,11 @@
-package repositories.slick
+package queryServices
 
 import java.sql.Timestamp
 import java.time.LocalDateTime
 
-import confguration.{PaginationConfig, ServerConfig}
-import model.{Post, PostId, Topic, TopicId, User}
+import confguration.{PaginationConfig, ServerConfig, ValidationConfig}
+import model._
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, MustMatchers}
-import queryServices.ForumQueryService
 import repositories.slick.mocks.{PostsRepositoryMock, TopicsRepositoryMock}
 
 import scala.concurrent.Await
@@ -20,7 +19,9 @@ class ForumQueryServiceSpec
   val paginationDefault = 10
   val paginationMaxLimit = 50
 
-  val config = ServerConfig("", 0, 500 milliseconds, PaginationConfig(paginationMaxLimit, paginationDefault))
+  val config = ServerConfig("", 0, 500 milliseconds,
+    PaginationConfig(paginationMaxLimit, paginationDefault),
+    ValidationConfig("", 0, 100, 0, 100))
 
   val timeout = config.timeout
 
@@ -50,9 +51,9 @@ class ForumQueryServiceSpec
   val topicsRepository = new TopicsRepositoryMock()
   val postsRepository = new PostsRepositoryMock(topicsRepository)
 
-  val topics = Range(1, 100).map(x => Topic(None, "test", "test", tmpUser, Timestamp.valueOf(LocalDateTime.MIN.plusHours(x))))
-  val posts = Range(1, 100).map(_ => Post(None, TopicId(1), "test", tmpUser)) ++
-    Range(1, 10).map(_ => Post(None, TopicId(2), "test", tmpUser))
+  val topics = Range(1, 100).map(x => Topic("test", "test", tmpUser))
+  val posts = Range(1, 100).map(_ => Post(TopicId(1), "test", tmpUser)) ++
+    Range(1, 10).map(_ => Post(TopicId(2), "test", tmpUser))
 
   Await.result(topicsRepository.init(topics), timeout)
   Await.result(postsRepository.init(posts), timeout)

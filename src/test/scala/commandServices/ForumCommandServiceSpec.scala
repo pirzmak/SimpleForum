@@ -1,7 +1,6 @@
-package repositories.slick
+package commandServices
 
-import commandServices.{CommandFailure, ForumCommandService, PostCommandResponse, TopicCommandResponse}
-import confguration.{PaginationConfig, ServerConfig}
+import confguration.{PaginationConfig, ServerConfig, ValidationConfig}
 import model._
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, MustMatchers}
 import repositories.slick.mocks.{PostsRepositoryMock, TopicsRepositoryMock}
@@ -17,7 +16,9 @@ class ForumCommandServiceSpec
   val paginationDefault = 10
   val paginationMaxLimit = 50
 
-  val config = ServerConfig("", 0, 500 milliseconds, PaginationConfig(paginationMaxLimit, paginationDefault))
+  val config = ServerConfig("", 0, 500 milliseconds,
+    PaginationConfig(paginationMaxLimit, paginationDefault),
+    ValidationConfig("""(\w+)@([\w\.]+)""", 0, 100, 0, 100))
 
   val timeout = config.timeout
 
@@ -25,11 +26,11 @@ class ForumCommandServiceSpec
 
   val topicsRepository = new TopicsRepositoryMock()
   val postsRepository = new PostsRepositoryMock(topicsRepository)
-  val forumCommandService = new ForumCommandService(topicsRepository, postsRepository)
+  val forumCommandService = new ForumCommandService(topicsRepository, postsRepository, config)
 
   before {
-    Await.result(topicsRepository.init(Seq(Topic(None, "test", "test", tmpUser))), timeout)
-    Await.result(postsRepository.init(Seq(Post(None, TopicId(1), "test", tmpUser))), timeout)
+    Await.result(topicsRepository.init(Seq(Topic("test", "test", tmpUser))), timeout)
+    Await.result(postsRepository.init(Seq(Post(TopicId(1), "test", tmpUser))), timeout)
   }
 
   after {
