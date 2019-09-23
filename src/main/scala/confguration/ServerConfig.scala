@@ -19,8 +19,8 @@ object ServerConfig {
     val postMaxLength: Int = ConfigFactory.load().getInt("validations.postMaxLength")
     val topicTitleMinLength: Int = ConfigFactory.load().getInt("validations.topicTitleMinLength")
     val topicTitleMaxLength: Int = ConfigFactory.load().getInt("validations.topicTitleMaxLength")
-    val nickMinLength: Int = ConfigFactory.load().getInt("validations.nickMinLength")
-    val nickMaxLength: Int = ConfigFactory.load().getInt("validations.topicTitleMaxLength")
+    val nickMinLength: Int = ConfigFactory.load().getInt("validations.nicknameMinLength")
+    val nickMaxLength: Int = ConfigFactory.load().getInt("validations.nicknameMaxLength")
 
     ServerConfig(host, port, timeout,
       PaginationConfig(paginationMaxLimit, paginationDefault),
