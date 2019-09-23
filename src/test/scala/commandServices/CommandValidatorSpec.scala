@@ -16,7 +16,7 @@ class CommandValidatorSpec
   topicsRepository.init(Seq(Topic("test", "test", User("asd", "asd@asd"))))
   postsRepository.init(Seq(Post(TopicId(1), "test", User("asd", "asd@asd"))))
 
-  val config = ValidationConfig("""(\w+)@([\w\.]+)""", 2, 10, 2, 10)
+  val config = ValidationConfig("""(\w+)@([\w\.]+)""", 2, 10, 2, 10, 2, 10)
 
   val commandValidator = new CommandValidator(topicsRepository, postsRepository, config)
 
@@ -50,6 +50,18 @@ class CommandValidatorSpec
 
   "Command validator when validate correct email" should "return None" in {
     commandValidator.validateEmail("aaa@aaa.pl") map(_ mustBe None)
+  }
+
+  "Command validator when validate too short nickname" should "return nicknameValidationTooShortFailure" in {
+    commandValidator.validateNickname("a") map(_ mustBe Some(CommandFailure.NicknameValidationTooShortFailure))
+  }
+
+  "Command validator when validate too long nickname" should "return PostValidationTooLongFailure" in {
+    commandValidator.validateNickname("a" * 11) map(_ mustBe Some(CommandFailure.NicknameValidationTooLongFailure))
+  }
+
+  "Command validator when validate correct nickName" should "return None" in {
+    commandValidator.validateTopicTitle("aaa") map(_ mustBe None)
   }
 
   "Command validator when validate incorrect postSecret" should "return IncorrectPostSecretFailure" in {

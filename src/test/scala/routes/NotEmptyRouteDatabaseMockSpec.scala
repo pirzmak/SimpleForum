@@ -3,11 +3,11 @@ package routes
 import java.sql.Timestamp
 import java.time.LocalDateTime
 
-import akka.http.scaladsl.model.{HttpRequest, StatusCodes}
+import akka.http.scaladsl.model.{ContentTypes, HttpRequest, StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import commandServices.ForumCommandService
+import commandServices.{CommandFailure, CreateNewPost, CreateNewTopic, ForumCommandService, PostCommandResponse, TopicCommandResponse, UpdatePost}
 import confguration.{PaginationConfig, ServerConfig, ValidationConfig}
-import model.{PostId, Topic, TopicId, User}
+import model.{PostId, PostSecretGenerator, Topic, TopicId, User}
 import org.scalatest.{AsyncWordSpec, BeforeAndAfter, MustMatchers}
 import queryServices.ForumQueryService
 import repositories.slick.{PostsRepositorySlickImpl, TopicsRepositorySlickImpl}
@@ -27,7 +27,7 @@ class NotEmptyRouteDatabaseMockSpec
     with ForumJsonSupport {
   val config = ServerConfig("", 0, 500 milliseconds,
     PaginationConfig(50, 20),
-    ValidationConfig("""(\w+)@([\w\.]+)""", 0, 100, 0, 100))
+    ValidationConfig("""(\w+)@([\w\.]+)""", 1, 100, 1, 100, 2, 10))
 
   val dbconfig = DatabaseConfig.forConfig[JdbcProfile]("h2mem1")
 
@@ -55,7 +55,7 @@ class NotEmptyRouteDatabaseMockSpec
     model.Post(None, TopicId(1), "test", tmpUser, Timestamp.valueOf(LocalDateTime.MIN), Timestamp.valueOf(LocalDateTime.MIN)),
     model.Post(None, TopicId(1), "test", tmpUser, Timestamp.valueOf(LocalDateTime.MIN), Timestamp.valueOf(LocalDateTime.MIN)))
 
-  val postsResponse = posts.zipWithIndex.map(t => t._1.copy(id = Some(PostId(t._2 + 1)))).reverse
+  val postsResponse = posts.zipWithIndex.map(t => t._1.copy(id = Some(PostId(t._2 + 1))))
 
   before {
     Await.result(topicsRepository.init(topics), config.timeout)
@@ -67,7 +67,7 @@ class NotEmptyRouteDatabaseMockSpec
     Await.result(topicsRepository.drop(), config.timeout)
   }
 
-  s"Not Empty forum route with repository mocks" should {
+  s"Not Empty forum route with database mocks" should {
     "Return topics (GET /topics)" in {
       val request = HttpRequest(uri = "/forum/topics")
 
@@ -124,7 +124,7 @@ class NotEmptyRouteDatabaseMockSpec
       request ~> forumRoute.route ~> check {
         status mustBe StatusCodes.OK
 
-        entityAs[String] mustBe postsResponse.takeRight(2).toJson.toString
+        entityAs[String] mustBe postsResponse.take(2).toJson.toString
       }
     }
 
@@ -134,7 +134,7 @@ class NotEmptyRouteDatabaseMockSpec
       request ~> forumRoute.route ~> check {
         status mustBe StatusCodes.OK
 
-        entityAs[String] mustBe postsResponse.slice(1, 4).toJson.toString
+        entityAs[String] mustBe postsResponse.slice(0, 3).toJson.toString
       }
     }
 
@@ -149,4 +149,122 @@ class NotEmptyRouteDatabaseMockSpec
     }
   }
 
+  s"Routes with validations with database mocks" should {
+    "Return failed when try add incorrect topic (POST /topics)" in {
+      val topic = CreateNewTopic("", "", User("joe", "doe"))
+
+      val request = Post("/forum/topics").withEntity(ContentTypes.`application/json`, topic.toJson.toString)
+
+      request ~> forumRoute.route ~> check {
+        status mustBe StatusCodes.BadRequest
+
+        val response = CommandFailure.TopicTitleValidationTooShortFailure ::
+          CommandFailure.PostValidationTooShortFailure ::
+          CommandFailure.EmailIncorrectValidationFailure
+
+        entityAs[String] mustBe response.toJson.toString
+      }
+    }
+
+    "Return failed when try add incorrect post (POST /topics/{id}/posts)" in {
+      val post = CreateNewPost("", User("joe", "doe"))
+
+      val request = Post("/forum/topics/0/posts").withEntity(ContentTypes.`application/json`, post.toJson.toString)
+
+      request ~> forumRoute.route ~> check {
+        status mustBe StatusCodes.BadRequest
+
+        val response = CommandFailure.TopicIdNotFoundFailure ::
+          CommandFailure.PostValidationTooShortFailure ::
+          CommandFailure.EmailIncorrectValidationFailure
+
+        entityAs[String] mustBe response.toJson.toString
+      }
+    }
+
+    "Return failed when try edit incorrect post (PUT /topics/{id}/posts/{secret})" in {
+      val post = UpdatePost("")
+
+      val request = Put("/forum/topics/0/posts/afafg").withEntity(ContentTypes.`application/json`, post.toJson.toString)
+
+      request ~> forumRoute.route ~> check {
+        status mustBe StatusCodes.BadRequest
+
+        val response =
+          CommandFailure.IncorrectPostSecretFailure ::
+            CommandFailure.PostValidationTooShortFailure
+
+        entityAs[String] mustBe response.toJson.toString
+      }
+    }
+
+    "Return failed when try edit post with incorrect id (PUT /topics/{id}/posts/{secret})" in {
+      val post = UpdatePost("aasd")
+
+      val request = Put("/forum/topics/0/posts/7fffffff-ffff-ffff-ffff-ffff801120000").withEntity(ContentTypes.`application/json`, post.toJson.toString)
+
+      request ~> forumRoute.route ~> check {
+        status mustBe StatusCodes.BadRequest
+
+        entityAs[String] mustBe CommandFailure.PostIdNotFoundFailure.toJson.toString
+      }
+    }
+
+    "Return failed when try delete post with incorrect id (DELETE /topics/{id}/posts/{secret})" in {
+      val request = Delete("/forum/topics/0/posts/7fffffff-ffff-ffff-ffff-ffff801120000")
+
+      request ~> forumRoute.route ~> check {
+        status mustBe StatusCodes.BadRequest
+
+        entityAs[String] mustBe CommandFailure.PostIdNotFoundFailure.toJson.toString
+      }
+    }
+
+    "Return success when add correct topic (POST /topics)" in {
+      val topic = CreateNewTopic("asdas", "asd", User("joe", "doe@awed.com"))
+
+      val request = Post("/forum/topics").withEntity(ContentTypes.`application/json`, topic.toJson.toString)
+
+      request ~> forumRoute.route ~> check {
+        status mustBe StatusCodes.OK
+
+        entityAs[String] mustBe TopicCommandResponse(TopicId(5)).toJson.toString
+      }
+    }
+
+    "Return success when add correct post (POST /topics/{id}/posts)" in {
+      val post = CreateNewPost("adfasdf", User("joe", "doe@wp.pl"))
+
+      val request = Post("/forum/topics/1/posts").withEntity(ContentTypes.`application/json`, post.toJson.toString)
+
+      request ~> forumRoute.route ~> check {
+        status mustBe StatusCodes.OK
+
+        entityAs[String] mustBe PostCommandResponse(PostSecretGenerator.getPostSecret(PostId(5))).toJson.toString
+      }
+    }
+
+    "Return success when edit correct post (PUT /topics/{id}/posts/{secret})" in {
+      val post = UpdatePost("aasd")
+      val secret = PostSecretGenerator.getPostSecret(PostId(1))
+      val request = Put(s"/forum/topics/1/posts/${secret.secret}").withEntity(ContentTypes.`application/json`, post.toJson.toString)
+
+      request ~> forumRoute.route ~> check {
+        status mustBe StatusCodes.OK
+
+        entityAs[String] mustBe PostCommandResponse(secret).toJson.toString
+      }
+    }
+
+    "Return success when delete post (DELETE /topics/{id}/posts/{secret})" in {
+      val secret = PostSecretGenerator.getPostSecret(PostId(1))
+      val request = Delete(s"/forum/topics/1/posts/${secret.secret}")
+
+      request ~> forumRoute.route ~> check {
+        status mustBe StatusCodes.OK
+
+        entityAs[String] mustBe PostCommandResponse(secret).toJson.toString
+      }
+    }
+  }
 }

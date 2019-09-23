@@ -18,7 +18,7 @@ class ForumQueryServiceSpec
 
   val config = ServerConfig("", 0, 500 milliseconds,
     PaginationConfig(paginationMaxLimit, paginationDefault),
-    ValidationConfig("", 0, 100, 0, 100))
+    ValidationConfig("", 0, 100, 0, 100, 2, 10))
 
   val timeout = config.timeout
 
@@ -109,7 +109,7 @@ class ForumQueryServiceSpec
 
   "Forum query service when getTopicPosts" should "return sorted posts" in {
     forumQueryService.getTopicPosts(TopicId(1), None, None, Some(1)) map {
-      result => result mustBe postsRepository.db.toList.map(_._2).filter(_.topicId == TopicId(1)).sortBy(_.id.get.value).takeRight(2).reverse
+      result => result mustBe postsRepository.db.toList.map(_._2).filter(_.topicId == TopicId(1)).sortBy(_.id.get.value).take(2)
     }
   }
 
@@ -122,7 +122,7 @@ class ForumQueryServiceSpec
   "Forum query service when getTopicPosts with offsets bigger than limit" should "return proper ration of before and after posts" in {
     forumQueryService.getTopicPosts(TopicId(1), Some(PostId(50)), Some(paginationMaxLimit * 2), Some(paginationMaxLimit)) map {
       result =>
-        val (after, before) = result.span(_.id.get != PostId(50))
+        val (before, after) = result.span(_.id.get != PostId(50))
         before.length / after.length mustBe 2
     }
   }

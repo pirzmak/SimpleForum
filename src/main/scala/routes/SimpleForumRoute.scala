@@ -90,7 +90,10 @@ class SimpleForumRoute(forumCommandService: ForumCommandService,
   private def handleResponse[T](response: Future[Either[CommandFailure, T]])(implicit writer: JsonWriter[T]): Route = {
     complete {
       response.map{
-        case Left(failure) => StatusCodes.BadRequest -> failure.toJson.toString
+        case Left(failure) => failure.msg match {
+          case CommandFailure.PostIdNotFoundFailure => StatusCodes.NotFound -> failure.toJson.toString
+          case _ => StatusCodes.BadRequest -> failure.toJson.toString
+        }
         case Right(response) => StatusCodes.OK -> response.toJson.toString()
       }
     }

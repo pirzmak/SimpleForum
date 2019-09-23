@@ -26,7 +26,7 @@ class NotEmptyRouteRepositoryMockSpec
 
   val config = ServerConfig("", 0, 500 milliseconds,
     PaginationConfig(50, 20),
-    ValidationConfig("""(\w+)@([\w\.]+)""", 1, 100, 1, 100))
+    ValidationConfig("""(\w+)@([\w\.]+)""", 1, 100, 1, 100, 2, 10))
 
   val topicsRepository = new TopicsRepositoryMock()
   val postsRepository = new PostsRepositoryMock(topicsRepository)
@@ -52,7 +52,7 @@ class NotEmptyRouteRepositoryMockSpec
     model.Post(None, TopicId(1), "test", tmpUser, Timestamp.valueOf(LocalDateTime.MIN), Timestamp.valueOf(LocalDateTime.MIN)),
     model.Post(None, TopicId(1), "test", tmpUser, Timestamp.valueOf(LocalDateTime.MIN), Timestamp.valueOf(LocalDateTime.MIN)))
 
-  val postsResponse = posts.zipWithIndex.map(t => t._1.copy(id = Some(PostId(t._2 + 1)))).reverse
+  val postsResponse = posts.zipWithIndex.map(t => t._1.copy(id = Some(PostId(t._2 + 1))))
 
   before {
     Await.result(topicsRepository.init(topics), config.timeout)
@@ -121,7 +121,7 @@ class NotEmptyRouteRepositoryMockSpec
       request ~> forumRoute.route ~> check {
         status mustBe StatusCodes.OK
 
-        entityAs[String] mustBe postsResponse.takeRight(2).toJson.toString
+        entityAs[String] mustBe postsResponse.take(2).toJson.toString
       }
     }
 
@@ -131,7 +131,7 @@ class NotEmptyRouteRepositoryMockSpec
       request ~> forumRoute.route ~> check {
         status mustBe StatusCodes.OK
 
-        entityAs[String] mustBe postsResponse.slice(1, 4).toJson.toString
+        entityAs[String] mustBe postsResponse.slice(0, 3).toJson.toString
       }
     }
 
@@ -264,5 +264,4 @@ class NotEmptyRouteRepositoryMockSpec
       }
     }
   }
-
 }

@@ -20,5 +20,7 @@ object CommandFailure {
   val PostValidationTooLongFailure = CommandFailure(Seq("Post message is too long"))
   val TopicTitleValidationTooShortFailure = CommandFailure(Seq("Topic title is too short"))
   val TopicTitleValidationTooLongFailure = CommandFailure(Seq("Topic title is too long"))
+  val NicknameValidationTooShortFailure = CommandFailure(Seq("Nickname is too short"))
+  val NicknameValidationTooLongFailure = CommandFailure(Seq("Nickname title is too long"))
   val EmailIncorrectValidationFailure = CommandFailure(Seq("Incorrect user email"))
 }

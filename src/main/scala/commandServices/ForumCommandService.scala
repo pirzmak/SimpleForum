@@ -17,7 +17,8 @@ class ForumCommandService(topicsRepository: TopicsRepository,
       v1 <- commandValidator.validateTopicTitle(title)
       v2 <- commandValidator.validatePostMessage(message)
       v3 <- commandValidator.validateEmail(creator.email)
-    } yield (v1 ++ v2 ++ v3).reduceOption(_::_)
+      v4 <- commandValidator.validateNickname(creator.nickName)
+    } yield (v1 ++ v2 ++ v3 ++ v4).reduceOption(_::_)
 
     validationResult flatMap {
       case Some(failure) => Future.successful(Left(failure))
@@ -32,7 +33,8 @@ class ForumCommandService(topicsRepository: TopicsRepository,
       v1 <- commandValidator.validateIfTopicExists(topicId)
       v2 <- commandValidator.validatePostMessage(message)
       v3 <- commandValidator.validateEmail(creator.email)
-    } yield (v1 ++ v2 ++ v3).reduceOption(_::_)
+      v4 <- commandValidator.validateNickname(creator.nickName)
+    } yield (v1 ++ v2 ++ v3 ++ v4).reduceOption(_::_)
 
     validationResult flatMap {
       case Some(failure) => Future.successful(Left(failure))

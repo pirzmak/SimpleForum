@@ -53,6 +53,16 @@ class CommandValidator(topicsRepository: TopicsRepository,
     } yield (r1 ++ r2).headOption
   }
 
+  def validateNickname(nick: String): Future[Option[CommandFailure]] = {
+    val tooShort = nick.length < validationConfig.nickMinLength
+    val tooLong = nick.length > validationConfig.nickMaxLength
+
+    for {
+      r1 <- validationResult(tooShort, CommandFailure.NicknameValidationTooShortFailure)
+      r2 <- validationResult(tooLong, CommandFailure.NicknameValidationTooLongFailure)
+    } yield (r1 ++ r2).headOption
+  }
+
   private def validationResult(result: Boolean, onFailure: CommandFailure): Future[Option[CommandFailure]] = {
     if(result) Future.successful(Some(onFailure)) else Future.successful(None)
   }

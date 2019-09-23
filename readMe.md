@@ -59,6 +59,8 @@ validations = {
     postMaxLength = 400
     topicTitleMinLength = 3
     topicTitleMaxLength = 150
+    topicTitleMinLength = 3
+    topicTitleMaxLength = 30
 }
 
 forum_db = {

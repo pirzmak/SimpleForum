@@ -92,7 +92,7 @@ class PostsRepositorySlickSpec
     Await.result(postsRepository.init(posts), timeout)
 
     postsRepository.getAll(topicId, Some(PostId(3)), 1, 1) map {
-      result => result mustBe posts.tail.reverse
+      result => result mustBe posts.tail
     }
   }
 

@@ -24,7 +24,7 @@ class EmptyRouteDatabaseMockSpec
     with ForumJsonSupport {
   val config = ServerConfig("", 0, 500 milliseconds,
     PaginationConfig(50, 20),
-    ValidationConfig("""(\w+)@([\w\.]+)""", 0, 100, 0, 100))
+    ValidationConfig("""(\w+)@([\w\.]+)""", 0, 100, 0, 100, 2, 10))
 
   val dbconfig = DatabaseConfig.forConfig[JdbcProfile]("h2mem1")
 
@@ -92,8 +92,6 @@ class EmptyRouteDatabaseMockSpec
     }
 
     "When try delete post return post id error (DELETE /topics/{id}/posts/{secret})" in {
-      val post = """{"newMessage": "text"}"""
-
       val request = Delete("/forum/topics/1/posts/7fffffff-ffff-ffff-ffff-ffff80000000")
 
       request ~> forumRoute.route ~> check {
@@ -106,7 +104,6 @@ class EmptyRouteDatabaseMockSpec
     "Be able to add topic (POST /topics)" in {
       val topic = """{"title": "Title", "text": "text", "creator": {"nickName": "joe", "email": "jon@doe.com"}}"""
 
-      // using the RequestBuilding DSL:
       val request = Post("/forum/topics").withEntity(ContentTypes.`application/json`, topic)
 
       request ~> forumRoute.route ~> check {

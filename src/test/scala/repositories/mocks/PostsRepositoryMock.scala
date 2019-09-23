@@ -57,14 +57,14 @@ class PostsRepositoryMock(topics: TopicsRepositoryMock) extends PostsRepository 
   }
 
   override def getAll(topicId: TopicId, actualPost: Option[PostId], beforeNo: Int, afterNo: Int): Future[Seq[Post]] = {
-    val list = db.toList.map(_._2).filter(_.topicId == topicId).sortBy(_.id.get.value).reverse
-    val (after, before) = actualPost match {
+    val list = db.toList.map(_._2).filter(_.topicId == topicId).sortBy(_.id.get.value)
+    val (before, after) = actualPost match {
       case Some(postId) =>
-        list.span(_.id.get != postId)
+        list.span(_.id.get.value <= postId.value)
       case None =>
         list.splitAt(1)
     }
-    Future.successful(after.takeRight(afterNo) ++ before.take(beforeNo + 1))
+    Future.successful(before.takeRight(beforeNo + 1) ++ after.take(afterNo))
   }
 
   private def updateTopic[T](topicId: TopicId)(handler: Future[T]): Future[T] = {

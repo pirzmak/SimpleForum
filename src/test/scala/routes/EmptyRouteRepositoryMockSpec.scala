@@ -22,7 +22,7 @@ class EmptyRouteRepositoryMockSpec
     with ForumJsonSupport {
   val config = ServerConfig("", 0, 500 milliseconds,
     PaginationConfig(50, 20),
-    ValidationConfig("""(\w+)@([\w\.]+)""", 0, 100, 0, 100))
+    ValidationConfig("""(\w+)@([\w\.]+)""", 0, 100, 0, 100, 2, 10))
 
   val topicsRepository = new TopicsRepositoryMock()
   val postsRepository = new PostsRepositoryMock(topicsRepository)

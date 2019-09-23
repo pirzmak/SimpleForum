@@ -19,10 +19,15 @@ object ServerConfig {
     val postMaxLength: Int = ConfigFactory.load().getInt("validations.postMaxLength")
     val topicTitleMinLength: Int = ConfigFactory.load().getInt("validations.topicTitleMinLength")
     val topicTitleMaxLength: Int = ConfigFactory.load().getInt("validations.topicTitleMaxLength")
+    val nickMinLength: Int = ConfigFactory.load().getInt("validations.nickMinLength")
+    val nickMaxLength: Int = ConfigFactory.load().getInt("validations.topicTitleMaxLength")
 
     ServerConfig(host, port, timeout,
       PaginationConfig(paginationMaxLimit, paginationDefault),
-      ValidationConfig(emailRegex, postMinLength, postMaxLength, topicTitleMinLength, topicTitleMaxLength))
+      ValidationConfig(emailRegex,
+        postMinLength, postMaxLength,
+        topicTitleMinLength, topicTitleMaxLength,
+        nickMinLength, nickMaxLength))
   }
 }
 
@@ -34,4 +39,5 @@ case class PaginationConfig(paginationMaxLimit: Int, paginationDefault: Int)
 
 case class ValidationConfig(emailRegex: String,
                             postMinLength: Int, postMaxLength: Int,
-                            topicTitleMinLength: Int, topicTitleMaxLength: Int)
+                            topicTitleMinLength: Int, topicTitleMaxLength: Int,
+                            nickMinLength: Int, nickMaxLength: Int)

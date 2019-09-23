@@ -18,7 +18,7 @@ class ForumCommandServiceSpec
 
   val config = ServerConfig("", 0, 500 milliseconds,
     PaginationConfig(paginationMaxLimit, paginationDefault),
-    ValidationConfig("""(\w+)@([\w\.]+)""", 0, 100, 0, 100))
+    ValidationConfig("""(\w+)@([\w\.]+)""", 0, 100, 0, 100, 2, 10))
 
   val timeout = config.timeout
 
