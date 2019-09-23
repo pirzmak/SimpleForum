@@ -1,12 +1,9 @@
 package queryServices
 
-import java.sql.Timestamp
-import java.time.LocalDateTime
-
 import confguration.{PaginationConfig, ServerConfig, ValidationConfig}
 import model._
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, MustMatchers}
-import repositories.slick.mocks.{PostsRepositoryMock, TopicsRepositoryMock}
+import repositories.mocks.{PostsRepositoryMock, TopicsRepositoryMock}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -125,7 +122,7 @@ class ForumQueryServiceSpec
   "Forum query service when getTopicPosts with offsets bigger than limit" should "return proper ration of before and after posts" in {
     forumQueryService.getTopicPosts(TopicId(1), Some(PostId(50)), Some(paginationMaxLimit * 2), Some(paginationMaxLimit)) map {
       result =>
-        val (before, after) = result.span(_.id.get != PostId(50))
+        val (after, before) = result.span(_.id.get != PostId(50))
         before.length / after.length mustBe 2
     }
   }

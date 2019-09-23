@@ -1,11 +1,11 @@
 package routes
 
+import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import spray.json._
 
 import scala.concurrent.{ExecutionContext, Future}
-
 import commandServices._
 import confguration.ServerConfig
 import model.{PostId, PostSecret, TopicId}
@@ -42,7 +42,7 @@ class SimpleForumRoute(forumCommandService: ForumCommandService,
           }
         }
       } ~
-      pathPrefix("topic" / Segment) { topicId =>
+      pathPrefix("topics" / Segment) { topicId =>
         path("posts") {
           get {
             parameters("postId".as[Int].?, "before".as[Int].?, "after".as[Int].?) {
@@ -90,8 +90,8 @@ class SimpleForumRoute(forumCommandService: ForumCommandService,
   private def handleResponse[T](response: Future[Either[CommandFailure, T]])(implicit writer: JsonWriter[T]): Route = {
     complete {
       response.map{
-        case Left(failure) => failure.msg.toString()
-        case Right(response) => response.toJson.toString()
+        case Left(failure) => StatusCodes.BadRequest -> failure.toJson.toString
+        case Right(response) => StatusCodes.OK -> response.toJson.toString()
       }
     }
   }

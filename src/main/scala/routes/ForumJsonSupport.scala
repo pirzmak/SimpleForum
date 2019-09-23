@@ -7,8 +7,7 @@ import java.time.format.DateTimeFormatter
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import spray.json._
-
-import commandServices.{CreateNewPost, CreateNewTopic, PostCommandResponse, TopicCommandResponse, UpdatePost}
+import commandServices.{CommandFailure, CreateNewPost, CreateNewTopic, PostCommandResponse, TopicCommandResponse, UpdatePost}
 import model._
 
 trait ForumJsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
@@ -16,7 +15,7 @@ trait ForumJsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
     new JsonFormat[Timestamp] {
       private val formatter = DateTimeFormatter.ISO_DATE_TIME
 
-      override def write(x: Timestamp): JsValue = JsString(x.toLocalDateTime.format(formatter))
+      override def write(x: Timestamp): JsValue = JsString(x.toLocalDateTime.withNano(0).format(formatter))
 
       override def read(value: JsValue): Timestamp = value match {
         case JsString(x) => Timestamp.valueOf(LocalDateTime.parse(x))
@@ -45,4 +44,6 @@ trait ForumJsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val topicJsonFormat: RootJsonFormat[Topic] = jsonFormat5(Topic.apply)
 
   implicit val postJsonFormat: RootJsonFormat[Post] = jsonFormat6(Post.apply)
+
+  implicit val commandFailureJsonFormat: RootJsonFormat[CommandFailure] = jsonFormat1(CommandFailure.apply)
 }

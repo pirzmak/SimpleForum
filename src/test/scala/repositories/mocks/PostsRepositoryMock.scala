@@ -1,4 +1,4 @@
-package repositories.slick.mocks
+package repositories.mocks
 
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -13,7 +13,7 @@ class PostsRepositoryMock(topics: TopicsRepositoryMock) extends PostsRepository 
   var db: Map[PostId, Post] = Map.empty
 
   override def init(initValues: Seq[Post]): Future[Unit] = {
-    db = initValues.zipWithIndex.map(p => (PostId(p._2 + 1), p._1.copy(id = Some(PostId(p._2))))).toMap
+    db = initValues.zipWithIndex.map(p => (PostId(p._2 + 1), p._1.copy(id = Some(PostId(p._2  + 1))))).toMap
     Future.successful()
   }
 
@@ -24,7 +24,7 @@ class PostsRepositoryMock(topics: TopicsRepositoryMock) extends PostsRepository 
 
   override def createNew(post: Post): Future[PostId] = {
     updateTopic(post.topicId) {
-      val nextId = PostId(db.last._1.value + 1)
+      val nextId = PostId(db.lastOption.map(_._1.value).getOrElse(0) + 1)
       db = db + (nextId -> post.copy(id = Some(nextId)))
       Future.successful(nextId)
     }
@@ -58,13 +58,13 @@ class PostsRepositoryMock(topics: TopicsRepositoryMock) extends PostsRepository 
 
   override def getAll(topicId: TopicId, actualPost: Option[PostId], beforeNo: Int, afterNo: Int): Future[Seq[Post]] = {
     val list = db.toList.map(_._2).filter(_.topicId == topicId).sortBy(_.id.get.value).reverse
-    val (before, after) = actualPost match {
+    val (after, before) = actualPost match {
       case Some(postId) =>
         list.span(_.id.get != postId)
       case None =>
         list.splitAt(1)
     }
-    Future.successful(before.takeRight(beforeNo + 1) ++ after.take(afterNo))
+    Future.successful(after.takeRight(afterNo) ++ before.take(beforeNo + 1))
   }
 
   private def updateTopic[T](topicId: TopicId)(handler: Future[T]): Future[T] = {

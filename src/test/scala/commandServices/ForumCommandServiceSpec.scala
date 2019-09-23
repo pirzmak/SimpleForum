@@ -3,7 +3,7 @@ package commandServices
 import confguration.{PaginationConfig, ServerConfig, ValidationConfig}
 import model._
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfter, MustMatchers}
-import repositories.slick.mocks.{PostsRepositoryMock, TopicsRepositoryMock}
+import repositories.mocks.{PostsRepositoryMock, TopicsRepositoryMock}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -26,6 +26,7 @@ class ForumCommandServiceSpec
 
   val topicsRepository = new TopicsRepositoryMock()
   val postsRepository = new PostsRepositoryMock(topicsRepository)
+
   val forumCommandService = new ForumCommandService(topicsRepository, postsRepository, config)
 
   before {

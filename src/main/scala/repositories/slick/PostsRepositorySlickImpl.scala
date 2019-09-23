@@ -79,11 +79,12 @@ class PostsRepositorySlickImpl(val config: DatabaseConfig[JdbcProfile])(implicit
             sortBy(_.id).
             filter(_.id > postId.value).
             take(afterNo)
-          db.run((before ++ after).sortBy(_.id).result)
+          db.run((after ++ before).sortBy(_.id.desc).result)
         case None =>
           val posts = topicPosts.
             sortBy(_.id).
-            take(afterNo + 1)
+            take(afterNo + 1).
+            sortBy(_.id.desc)
           db.run(posts.result)
       }
     }
