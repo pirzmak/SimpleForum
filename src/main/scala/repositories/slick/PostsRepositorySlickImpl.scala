@@ -19,7 +19,7 @@ class PostsRepositorySlickImpl(val config: DatabaseConfig[JdbcProfile])(implicit
   override def init(initValues: Seq[Post] = Seq.empty): Future[Unit] =
     if (!tableExists("POSTS")) {
       db.run(
-        DBIO.seq(
+        DBIOAction.seq(
           posts.schema.create,
           posts ++= initValues
         ))

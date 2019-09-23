@@ -4,14 +4,18 @@ Simple REST service to add posts/topics on forum.
 
 ## Getting Started
 
-To build and start application you can use script file start.sh
+To build and start application you can use script file start.sh.  
+To start application with initial values use argument -init. To initialize example values you need delete old DB tables 
+with names TOPICS and POSTS.
 
 ```
 ./start.sh
+./start_init.sh
 ```
 or use sbt command run 
 ```
 sbt "run"
+sbt "run -init"
 ```
 
 ### Prerequisites
@@ -116,7 +120,7 @@ curl -i -X GET 'localhost:8080/forum/topics?offset=0&limit=20'
 #### GET: Getting posts list
 
 ```
-localhost:8080/forum/topic/<topicId>/posts?postId=<post_id>&before=<before>&after=<after>
+localhost:8080/forum/topics/<topicId>/posts?postId=<post_id>&before=<before>&after=<after>
 ```
 ##### Parameters:
 postId - number. Optional value.  
@@ -141,7 +145,7 @@ List of posts from topic. Post object format:
 
 ##### Example 
 ```
-curl -i -X GET 'localhost:8080/forum/topic/1/posts?postId=1&before=1&after=1'
+curl -i -X GET 'localhost:8080/forum/topics/1/posts?postId=1&before=1&after=1'
 ```
 #### POST: Create topic
 
@@ -174,7 +178,7 @@ curl -i -H "Content-Type: application/json" -X POST localhost:8080/forum/topics 
 #### POST: Create post
 
 ```
-localhost:8080/forum/topic/<topicId>/posts
+localhost:8080/forum/topics/<topicId>/posts
 ```
 ##### Body:
 ```
@@ -196,12 +200,12 @@ Post secret:
 
 ##### Example 
 ```
-curl -i -H "Content-Type: application/json" -X POST localhost:8080/forum/topic/1/posts -d '{"message": "Post text", "creator": {"nickName": "Jon", "email": "jon@doe.com"}}'
+curl -i -H "Content-Type: application/json" -X POST localhost:8080/forum/topics/1/posts -d '{"message": "Post text", "creator": {"nickName": "Jon", "email": "jon@doe.com"}}'
 ```
 #### PUT: Edit post
 
 ```
-localhost:8080/forum/topic/<topicId>/posts/<post_secret>
+localhost:8080/forum/topics/<topicId>/posts/<post_secret>
 ```
 ##### Body:
 ```
@@ -219,13 +223,13 @@ Post secret:
 
 ##### Example 
 ```
-curl -i -H "Content-Type: application/json" -X PUT localhost:8080/forum/topic/1/posts/7fffffff-ffff-ffff-ffff-ffff80000000 -d '{"message": "Post text"}'
+curl -i -H "Content-Type: application/json" -X PUT localhost:8080/forum/topics/1/posts/7fffffff-ffff-ffff-ffff-ffff80000000 -d '{"message": "Post text"}'
 ```
 
 #### DELETE: Delete post
 
 ```
-localhost:8080/forum/topic/<topicId>/posts/<post_secret>
+localhost:8080/forum/topics/<topicId>/posts/<post_secret>
 ```
 
 ##### Response: 
@@ -238,5 +242,5 @@ Post secret:
 
 ##### Example 
 ```
-curl -i -H "Content-Type: application/json" -X Delete localhost:8080/forum/topic/1/posts/7fffffff-ffff-ffff-ffff-ffff80000000
+curl -i -H "Content-Type: application/json" -X Delete localhost:8080/forum/topics/1/posts/7fffffff-ffff-ffff-ffff-ffff80000000
 ```

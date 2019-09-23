@@ -48,8 +48,7 @@ class ForumCommandService(topicsRepository: TopicsRepository,
     val validationResult = for {
       v1 <- commandValidator.validateSecretPost(postSecret)
       v2 <- commandValidator.validatePostMessage(newMessage)
-      v3 <- if(postId.isDefined) commandValidator.validateIfPostExists(postId.get) else Future.successful(None)
-    } yield (v1 ++ v2 ++ v3).reduceOption(_::_)
+    } yield (v1 ++ v2).reduceOption(_::_)
 
     validationResult flatMap {
       case Some(failure) => Future.successful(Left(failure))
@@ -66,8 +65,7 @@ class ForumCommandService(topicsRepository: TopicsRepository,
 
     val validationResult = for {
       v1 <- commandValidator.validateSecretPost(postSecret)
-      v2 <- if(postId.isDefined) commandValidator.validateIfPostExists(postId.get) else Future.successful(None)
-    } yield (v1 ++ v2).reduceOption(_::_)
+    } yield v1
 
     validationResult flatMap {
       case Some(failure) => Future.successful(Left(failure))

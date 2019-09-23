@@ -16,13 +16,13 @@ class CommandValidator(topicsRepository: TopicsRepository,
   }
 
   def validateIfPostExists(postId: PostId): Future[Option[CommandFailure]] = {
-    postsRepository.getById(postId) flatMap  { p =>
+    postsRepository.getById(postId) flatMap { p =>
       validationResult(p.isEmpty, CommandFailure.PostIdNotFoundFailure)
     }
   }
 
   def validateIfTopicExists(topicId: TopicId): Future[Option[CommandFailure]] = {
-    topicsRepository.getById(topicId) flatMap  { t =>
+    topicsRepository.getById(topicId) flatMap { t =>
       validationResult(t.isEmpty, CommandFailure.TopicIdNotFoundFailure)
     }
   }

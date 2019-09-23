@@ -32,7 +32,7 @@ class PostsRepositoryMock(topics: TopicsRepositoryMock) extends PostsRepository 
 
   override def update(postId: PostId, newMessage: String): Future[Boolean] = {
     db.get(postId) match {
-      case None => Future.failed(throw new IllegalArgumentException)
+      case None => Future.successful(false)
       case Some(post) =>
         updateTopic(post.topicId) {
           db = db + (postId -> post.copy(message = newMessage))
@@ -43,7 +43,7 @@ class PostsRepositoryMock(topics: TopicsRepositoryMock) extends PostsRepository 
 
   override def delete(postId: PostId): Future[Boolean] = {
     db.get(postId) match {
-      case None => Future.failed(throw new IllegalArgumentException)
+      case None => Future.successful(false)
       case Some(post) =>
         updateTopic(post.topicId) {
           db = db - postId

@@ -25,13 +25,13 @@ class ForumQueryService(topicsRepository: TopicsRepository,
   private def getOffsetsValues(elementsBefore: Option[Int], elementsAfter: Option[Int]): (Int, Int) =
     (elementsBefore, elementsAfter) match {
       case (None, None) => (paginationDefault  / 2, paginationDefault  / 2)
-      case (Some(before), None) => (Math.min(before, paginationMaxLimit - 1), 0)
-      case (None, Some(after)) => (0, Math.min(after, paginationMaxLimit - 1))
-      case (Some(before), Some(0)) => (Math.min(before, paginationMaxLimit - 1), 0)
-      case (Some(0), Some(after)) => (0, Math.min(after, paginationMaxLimit - 1))
       case (Some(before), Some(after)) if before + after < paginationMaxLimit => (before, after)
       case (Some(before), Some(after)) =>
         val ration = before.toDouble/(before + after)
         ((ration * paginationMaxLimit).toInt, ((1-ration) * paginationMaxLimit - 1).toInt)
+      case (before, after) => (getOffsetLimited(before), getOffsetLimited(after))
     }
+
+  private def getOffsetLimited(offset: Option[Int]): Int =
+    Math.min(offset.getOrElse(0), paginationMaxLimit - 1)
 }
