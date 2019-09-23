@@ -1,6 +1,6 @@
 package repositories.slick
 
-import java.sql.{SQLException, Timestamp}
+import java.sql.Timestamp
 import java.time.LocalDateTime
 
 import slick.basic.DatabaseConfig

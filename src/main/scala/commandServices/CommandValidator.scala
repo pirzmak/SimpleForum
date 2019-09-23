@@ -1,11 +1,11 @@
 package commandServices
 
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.matching.Regex
+
 import confguration.ValidationConfig
 import model.{PostId, PostSecret, PostSecretGenerator, TopicId}
 import repositories.interfaces.{PostsRepository, TopicsRepository}
-
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.matching.Regex
 
 class CommandValidator(topicsRepository: TopicsRepository,
                        postsRepository: PostsRepository,

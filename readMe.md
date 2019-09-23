@@ -110,7 +110,7 @@ List of topics. Topic object format:
     nickName: string,
     email: string 
   } - creator info
-  lastModified: <YYYY-mm-ddTHH:MM> - time of last modification
+  lastModified: <YYYY-mm-ddTHH:MM:SS> - time of last modification
 }
 ```
 
@@ -140,8 +140,8 @@ List of posts from topic. Post object format:
     nickName: string,
     email: string 
   } - creator info
-  createdTime: <YYYY-mm-ddTHH:MM> - time of create
-  lastModification: <YYYY-mm-ddTHH:MM> - time of last modification
+  createdTime: <YYYY-mm-ddTHH:MM:SS> - time of create
+  lastModification: <YYYY-mm-ddTHH:MM:SS> - time of last modification
 }
 ```
 

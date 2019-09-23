@@ -153,7 +153,7 @@ class PostsRepositorySlickSpec
     Await.result(postsRepository.init(Seq(Post(Some(PostId(1)), topicId, "tmp", tmpUser))), timeout)
 
     postsRepository.delete(PostId(1)) flatMap {
-      result => postsRepository.getAll(topicId, Some(PostId(1)), 5, 5) map {
+      _ => postsRepository.getAll(topicId, Some(PostId(1)), 5, 5) map {
         r => r.length mustBe 0
       }
     }

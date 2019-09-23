@@ -4,7 +4,7 @@ import java.util.UUID
 
 object PostSecretGenerator {
   def getPostSecret(postId: PostId): PostSecret = {
-    PostSecret(new UUID(Long.MaxValue / 2, Int.MaxValue + postId.value).toString)
+    PostSecret(new UUID(Long.MaxValue / 97, Int.MaxValue + postId.value).toString)
   }
 
   def getPostId(postSecret: PostSecret): Option[PostId] = {

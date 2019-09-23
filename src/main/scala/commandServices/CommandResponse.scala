@@ -6,7 +6,7 @@ trait CommandResponse
 case class TopicCommandResponse(topicId: TopicId) extends CommandResponse
 case class PostCommandResponse(postSecret: PostSecret) extends CommandResponse
 
-case class CommandFailure(msg: Seq[String]) {
+case class CommandFailure(msg: Seq[String]) extends CommandResponse {
   def ::(c: CommandFailure): CommandFailure =
     CommandFailure(this.msg ++ c.msg)
 }

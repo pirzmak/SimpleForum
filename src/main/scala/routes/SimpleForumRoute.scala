@@ -17,6 +17,7 @@ class SimpleForumRoute(forumCommandService: ForumCommandService,
                        serverConfig: ServerConfig)(implicit ec: ExecutionContext) extends ForumJsonSupport {
 
   val offsetErrorMessage = "Offset can't be smaller than 0"
+  val limitErrorMessage = "Limit can't be smaller than 1"
 
   def route: Route =
     pathPrefix("forum") {
@@ -24,8 +25,10 @@ class SimpleForumRoute(forumCommandService: ForumCommandService,
         get {
           parameters("offset".as[Int].?, "limit".as[Int].?) { (offset, limit) =>
             validate(offset.getOrElse(0) >= 0, offsetErrorMessage) {
-              complete {
-                forumQueryService.getTopicsSortedByLastActive(offset, limit)
+              validate(limit.getOrElse(0) >= 0, limitErrorMessage) {
+                complete {
+                  forumQueryService.getTopicsSortedByLastActive(offset, limit)
+                }
               }
             }
           }
@@ -33,11 +36,7 @@ class SimpleForumRoute(forumCommandService: ForumCommandService,
         post {
           entity(as[CreateNewTopic]) { command =>
             handleResponse[TopicCommandResponse] {
-              forumCommandService.createNewTopic(
-                command.title,
-                command.text,
-                command.creator
-              )
+              forumCommandService.createNewTopic(command.title, command.text, command.creator)
             }
           }
         }
@@ -49,10 +48,7 @@ class SimpleForumRoute(forumCommandService: ForumCommandService,
               (postId, elementsBefore, elementsAfter) =>
                 validate(elementsBefore.getOrElse(0) >= 0 && elementsAfter.getOrElse(0) >= 0, offsetErrorMessage) {
                   complete {
-                    forumQueryService.getTopicPosts(
-                      TopicId(topicId.toInt),
-                      postId.map(PostId),
-                      elementsBefore, elementsAfter)
+                    forumQueryService.getTopicPosts(TopicId(topicId.toInt), postId.map(PostId), elementsBefore, elementsAfter)
                   }
                 }
             }
@@ -60,10 +56,7 @@ class SimpleForumRoute(forumCommandService: ForumCommandService,
           post {
             entity(as[CreateNewPost]) { command =>
               handleResponse[PostCommandResponse] {
-                forumCommandService.createNewPost(
-                  TopicId(topicId.toInt),
-                  command.message,
-                  command.creator)
+                forumCommandService.createNewPost(TopicId(topicId.toInt), command.message, command.creator)
               }
             }
           }
@@ -72,9 +65,7 @@ class SimpleForumRoute(forumCommandService: ForumCommandService,
           put {
             entity(as[UpdatePost]) { command =>
               handleResponse[PostCommandResponse] {
-                forumCommandService.updatePost(
-                  PostSecret(postSecret),
-                  command.newMessage)
+                forumCommandService.updatePost(PostSecret(postSecret), command.newMessage)
               }
             }
           } ~

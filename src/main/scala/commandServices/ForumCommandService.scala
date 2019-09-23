@@ -1,10 +1,10 @@
 package commandServices
 
+import scala.concurrent.{ExecutionContext, Future}
+
 import confguration.ServerConfig
 import model._
 import repositories.interfaces.{PostsRepository, TopicsRepository}
-
-import scala.concurrent.{ExecutionContext, Future}
 
 class ForumCommandService(topicsRepository: TopicsRepository,
                           postsRepository: PostsRepository,
@@ -55,10 +55,8 @@ class ForumCommandService(topicsRepository: TopicsRepository,
     validationResult flatMap {
       case Some(failure) => Future.successful(Left(failure))
       case None =>
-        postsRepository.update(postId.get, newMessage).map {
-          case true => Right(PostCommandResponse(postSecret))
-          case false => Left(CommandFailure.PostIdNotFoundFailure)
-        }
+        postsRepository.update(postId.get, newMessage).map(response =>
+          if(response) Right(PostCommandResponse(postSecret)) else Left(CommandFailure.PostIdNotFoundFailure))
     }
   }
 
@@ -72,10 +70,8 @@ class ForumCommandService(topicsRepository: TopicsRepository,
     validationResult flatMap {
       case Some(failure) => Future.successful(Left(failure))
       case None =>
-        postsRepository.delete(postId.get).map {
-          case true => Right(PostCommandResponse(postSecret))
-          case false => Left(CommandFailure.PostIdNotFoundFailure)
-        }
+        postsRepository.delete(postId.get).map(response =>
+          if(response) Right(PostCommandResponse(postSecret)) else Left(CommandFailure.PostIdNotFoundFailure))
     }
   }
 }
