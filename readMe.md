@@ -60,7 +60,7 @@ validations = {
     topicTitleMinLength = 3
     topicTitleMaxLength = 150
     nicknameMinLength = 3
-    nicknameTitleMaxLength = 30
+    nicknameMaxLength = 30
 }
 
 forum_db = {
