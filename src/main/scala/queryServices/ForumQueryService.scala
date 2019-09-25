@@ -1,0 +1,37 @@
+package queryServices
+
+import confguration.ServerConfig
+import model.{Post, PostId, Topic, TopicId}
+import repositories.interfaces.{PostsRepository, TopicsRepository}
+
+import scala.concurrent.Future
+
+class ForumQueryService(topicsRepository: TopicsRepository,
+                        postsRepository: PostsRepository,
+                        serverConfig: ServerConfig) {
+  private val paginationDefault = serverConfig.paginationConfig.paginationDefault
+  private val paginationMaxLimit = serverConfig.paginationConfig.paginationMaxLimit
+
+  def getTopicsSortedByLastActive(offset: Option[Int], limit: Option[Int]): Future[Seq[Topic]] = {
+    topicsRepository.getAllSortedByLastActivity(offset.getOrElse(0),
+      Math.min(limit.getOrElse(paginationDefault), paginationMaxLimit))
+  }
+
+  def getTopicPosts(topicId: TopicId, postId: Option[PostId], elementsBefore: Option[Int], elementsAfter: Option[Int]): Future[Seq[Post]] = {
+    val (limitedOffsetBefore, limitedOffsetAfter) = getOffsetsValues(elementsBefore, elementsAfter)
+    postsRepository.getAll(topicId, postId, limitedOffsetBefore, limitedOffsetAfter)
+  }
+
+  private def getOffsetsValues(elementsBefore: Option[Int], elementsAfter: Option[Int]): (Int, Int) =
+    (elementsBefore, elementsAfter) match {
+      case (None, None) => (paginationDefault  / 2, paginationDefault  / 2)
+      case (Some(before), Some(after)) if before + after < paginationMaxLimit => (before, after)
+      case (Some(before), Some(after)) =>
+        val ration = before.toDouble/(before + after)
+        ((ration * paginationMaxLimit).toInt, ((1-ration) * paginationMaxLimit - 1).toInt)
+      case (before, after) => (getOffsetLimited(before), getOffsetLimited(after))
+    }
+
+  private def getOffsetLimited(offset: Option[Int]): Int =
+    Math.min(offset.getOrElse(0), paginationMaxLimit - 1)
+}
